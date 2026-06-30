@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StableTrack GTM</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* StableTrack brand: warm cream bg, espresso ink, amber accent, serif headings */
+  :root{--bg:#FDFBF7;--card:#ffffff;--line:#e8ddd0;--ink:#3E2723;--ink2:#5D4037;--mut:#9a8979;--accent:#C6761E;--accent-d:#5D4037;--gold:#E9A319;--good:#3E8E5A;--hi:#C0392B;--med:#C6761E;--serif:"Source Serif 4",Georgia,"Times New Roman",serif}
+  *{box-sizing:border-box} body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1320px;margin:0 auto;padding:0 28px 56px}
+  .brandbar{display:flex;align-items:center;gap:13px;padding:15px 0 13px;border-bottom:2px solid var(--accent);margin-bottom:4px}
+  .logo-img{height:34px;width:auto;display:block;flex:0 0 auto}
+  .seplabel{font-family:var(--serif);color:var(--accent);font-weight:700;font-size:18px;border-left:1px solid var(--line);padding-left:13px;letter-spacing:-.2px;line-height:1}
+  .bar-actions{display:flex;align-items:center;gap:4px}
+  .bar-actions .ts{font-size:11.5px;color:var(--mut);margin-right:6px;white-space:nowrap}
+  .bar-actions a{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;font-size:16px;color:#fff;background:var(--accent);border:1px solid var(--accent);border-radius:9px;text-decoration:none;box-shadow:0 1px 3px rgba(198,118,30,.25);transition:background .15s,box-shadow .15s}
+  .bar-actions a:hover{background:#b16715;border-color:#b16715;color:#fff;box-shadow:0 2px 7px rgba(198,118,30,.34);text-decoration:none}
+  @media(max-width:560px){.logo-img{height:27px}.seplabel{font-size:15px;padding-left:9px}.bar-actions .ts{display:none}.wrap{padding:0 16px 40px}}
+  .mut{color:var(--mut)} .sub{color:var(--mut);font-size:12px}
+  .tabs{display:flex;width:fit-content;max-width:100%;justify-content:flex-start;gap:4px;margin:20px auto 18px;padding:5px;background:#f1e7d8;border:1px solid var(--line);border-radius:14px;box-shadow:inset 0 1px 3px rgba(62,39,35,.05);overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{padding:9px 18px;cursor:pointer;color:var(--ink2);font-size:13.5px;font-weight:600;white-space:nowrap;border-radius:10px;transition:background .15s,color .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent}
+  .tab:hover{color:var(--ink);background:rgba(255,255,255,.6)}
+  .tab.active{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(198,118,30,.3)} .tab.active:hover{background:var(--accent);color:#fff}
+  @media(max-width:560px){.tab{padding:8px 13px;font-size:13px} .tabs{margin:14px auto}}
+  .panel{display:none;padding-top:12px} .panel.active{display:block}
+  .phead{display:flex;justify-content:flex-end;margin-bottom:2px}
+  .asof{font-size:11px;font-weight:600;color:var(--ink2);background:#f6ecdf;border:1px solid #e8ddd0;border-radius:7px;padding:3px 9px;white-space:nowrap} .asof:empty{display:none}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin:10px 0;box-shadow:0 1px 2px rgba(62,39,35,.04)}
+  .ctrls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  input,select{background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 10px;font-size:13px}
+  input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(198,118,30,.12)}
+  input[type=text]{min-width:220px}
+  table{width:100%;border-collapse:collapse;font-size:13px} th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;user-select:none;white-space:nowrap} th:hover{color:var(--accent)}
+  tbody tr:hover{background:#fdf8f1} th.sortable::after{content:' ↕';opacity:.4} .num{font-variant-numeric:tabular-nums;text-align:right}
+  .p-High{color:var(--hi);font-weight:700} .p-Medium{color:var(--accent);font-weight:600} .p-Low{color:var(--mut)}
+  .tag{font-size:11px;background:#f6ecdf;border:1px solid #e8ddd0;border-radius:6px;padding:1px 8px;color:var(--ink2);font-weight:500}
+  a{color:var(--accent);text-decoration:none;font-weight:500} a:hover{text-decoration:underline}
+  .flow{overflow-x:auto} .empty{color:var(--mut);font-style:italic;padding:6px} .err{color:var(--hi)}
+  .focus{color:var(--ink);font-weight:600;font-family:var(--serif);font-size:15px} .pill{display:inline-block;background:#f6ecdf;border:1px solid #e8ddd0;border-radius:7px;padding:3px 9px;margin:2px;font-size:12px;color:var(--ink2);font-weight:500}
+  tr.exp{cursor:pointer} .det{background:#fdf8f1;font-size:12.5px;color:var(--ink2);padding:9px 13px;white-space:pre-line;border-left:2px solid var(--accent)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px} @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .split{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:12px;align-items:start} @media(max-width:900px){.split{grid-template-columns:1fr}}
+  .split .card{margin:10px 0} .split canvas{height:260px!important;max-height:260px}
+  b{color:var(--ink)} hr{border:0;border-top:1px solid var(--line)}
+  button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:8px 15px;font-weight:600;cursor:pointer} button:hover{background:#b16715} button:disabled{opacity:.5}
+  /* floating AI chatbot */
+  #chatFab{position:fixed;right:20px;bottom:20px;z-index:50;display:flex;align-items:center;gap:8px;padding:11px 17px;border-radius:30px;font-size:15px;box-shadow:0 6px 20px rgba(62,39,35,.28);background:linear-gradient(135deg,var(--accent),var(--accent-d))}
+  #chatFab span{font-size:14px;font-weight:600} #chatFab:hover{filter:brightness(1.05)}
+  #chatwidget{position:fixed;right:20px;bottom:20px;z-index:60;width:370px;max-width:calc(100vw - 32px);background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 44px rgba(62,39,35,.32);padding:13px;display:none;flex-direction:column}
+  #chatwidget.open{display:flex}
+  .cw-head{display:flex;align-items:center;gap:9px;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line)}
+  .cw-mark{width:32px;height:32px;border-radius:8px;object-fit:contain;background:#f6ecdf;padding:3px;flex:0 0 auto}
+  .cw-title{display:flex;flex-direction:column;justify-content:center;line-height:1.25}
+  .cw-head b{font-family:var(--serif);font-size:15px;color:var(--ink)} .cw-head .sub{font-size:11px}
+  .cw-x{cursor:pointer;color:var(--mut);font-size:16px;padding:2px 6px;border-radius:6px} .cw-x:hover{background:#f6ecdf;color:var(--ink)}
+  #chatlog{height:330px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;padding:11px;background:#fdf8f1;margin-bottom:8px}
+  .msg{margin:6px 0;padding:9px 12px;border-radius:10px;max-width:88%;white-space:pre-wrap;font-size:13px}
+  .msg.u{background:var(--accent);color:#fff;margin-left:auto} .msg.a{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .chatrow{display:flex;gap:8px} .chatrow input{flex:1}
+  .chips{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-top:8px}
+  .chip{font-size:12px;background:#f6ecdf;border:1px solid #e8ddd0;border-radius:14px;padding:5px 12px;cursor:pointer;color:var(--ink2);font-weight:500;text-align:left} .chip:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+  /* ---- Weekly Reports view ---- */
+  .rv{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:18px;align-items:start} @media(max-width:820px){.rv{grid-template-columns:1fr}}
+  .rv-rail{display:flex;flex-direction:column;gap:14px}
+  .rv-lbl{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.09em;margin:2px 2px 6px}
+  .rv-week{width:100%;cursor:pointer}
+  .rv-card{display:flex;flex-direction:column;gap:5px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--line);border-radius:11px;padding:12px 13px;cursor:pointer;transition:border-color .12s,box-shadow .12s}
+  .rv-card:hover{box-shadow:0 2px 8px rgba(62,39,35,.07)}
+  .rv-card.on{border-color:var(--accent);border-left-color:var(--accent);box-shadow:0 2px 10px rgba(198,118,30,.13)}
+  .rv-top{display:flex;align-items:center;gap:8px} .rv-ic{font-size:16px} .rv-nm{font-weight:600;font-size:14px}
+  .rv-prev{font-size:12px;color:var(--mut);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .rv-meta{font-size:11px;color:var(--mut);margin-top:2px}
+  .rv-st{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:20px;border:1px solid transparent}
+  .rv-st.live{background:#e7f1ea;color:var(--good);border-color:#bfdcca} .rv-st.draft{background:#fbf0dd;color:#9a6a12;border-color:#e6d3a8} .rv-st.none{background:#f1ece6;color:var(--mut);border-color:var(--line)}
+  .rv-doc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:28px 32px;box-shadow:0 1px 3px rgba(62,39,35,.05);min-height:420px} @media(max-width:560px){.rv-doc{padding:20px 16px}}
+  .rv-head{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:18px}
+  .rv-head h1{font-family:var(--serif);font-size:24px;font-weight:700;margin:0;letter-spacing:-.01em;flex:1;min-width:220px;line-height:1.2}
+  .rv-sub{font-size:12.5px;color:var(--mut);margin-top:5px}
+  .rv-callout{background:linear-gradient(180deg,#fdf6ea,#fbf0dd);border:1px solid #efdcb6;border-radius:11px;padding:15px 17px;font-family:var(--serif);font-size:16px;line-height:1.5;margin-bottom:20px}
+  .rv-callout .cl{display:block;font-family:inherit;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);margin-bottom:6px;font-family:-apple-system,sans-serif}
+  .rv-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:22px}
+  .rv-m{background:#fdfaf5;border:1px solid var(--line);border-radius:11px;padding:12px 13px}
+  .rv-m .ml{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em} .rv-m .mv{font-family:var(--serif);font-size:22px;font-weight:700;margin-top:3px;line-height:1}
+  .rv-m .md{font-size:12px;font-weight:600;margin-top:5px} .rv-m .md.up{color:var(--good)} .rv-m .md.down{color:var(--hi)} .rv-m .md.flat{color:var(--mut)}
+  .rv-sec{margin-bottom:22px} .rv-sec h2{font-family:var(--serif);font-size:16px;font-weight:700;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+  .rv-sec h2 .ct{font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;color:var(--mut);background:#f3ece4;border-radius:20px;padding:1px 8px}
+  ol.rv-find{list-style:none;margin:0;padding:0;counter-reset:f} ol.rv-find li{counter-increment:f;position:relative;padding:9px 0 9px 30px;border-bottom:1px solid var(--line);color:var(--ink2);font-size:13.5px;line-height:1.5}
+  ol.rv-find li:last-child{border-bottom:none} ol.rv-find li::before{content:counter(f);position:absolute;left:0;top:9px;width:21px;height:21px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  ol.rv-wins li::before{background:#e7f1ea;color:var(--good)} ol.rv-cons li::before{background:#fbece9;color:var(--hi)} .rv-find b{color:var(--ink)}
+  .rv-act{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)} .rv-act:last-child{border-bottom:none}
+  .rv-act .pr{flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:52px}
+  .rv-act .prn{font-size:10px;font-weight:800;letter-spacing:.05em;color:#fff;background:var(--accent);border-radius:6px;padding:3px 7px} .rv-act .prn.p1{background:var(--hi)} .rv-act .prn.p2{background:#D9822B}
+  .rv-act .wh{font-size:10px;color:var(--mut);text-transform:uppercase} .rv-act .at{font-weight:700;color:var(--ink);font-size:13.5px} .rv-act .ab{color:var(--ink2);font-size:13px;margin-top:2px;line-height:1.5}
+  .rv-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;padding:60px 24px;color:var(--mut)} .rv-empty .ei{font-size:32px;opacity:.6} .rv-empty .et{font-family:var(--serif);font-size:18px;color:var(--ink2)}
+  .rv-md h2{font-family:var(--serif);font-size:15px;font-weight:700;margin:20px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--line)} .rv-md h2:first-child{margin-top:0} .rv-md h3{font-size:13px;font-weight:700;color:var(--ink2);margin:14px 0 6px}
+  .rv-md p{margin:8px 0;color:var(--ink2)} .rv-md ul,.rv-md ol{margin:8px 0;padding-left:22px;color:var(--ink2)} .rv-md li{margin:4px 0} .rv-md blockquote{margin:10px 0;padding:8px 14px;border-left:3px solid var(--accent);background:#fdf8f1;border-radius:0 8px 8px 0}
+  /* ---- Social channel cards ---- */
+  .sc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:4px 0 14px}
+  .sc-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(62,39,35,.04)}
+  .sc-card .ch{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .sc-card .ch b{font-size:14px;color:var(--ink)} .sc-card .er{font-size:11px;font-weight:700;background:#f6ecdf;border:1px solid #e8ddd0;border-radius:20px;padding:2px 8px;color:var(--ink2);white-space:nowrap}
+  .sc-card .big{font-family:var(--serif);font-size:27px;font-weight:700;margin:8px 0 0;line-height:1} .sc-card .big .u{font-size:12px;font-weight:600;color:var(--mut);font-family:-apple-system,sans-serif}
+  .sc-card .d{font-size:12.5px;font-weight:600;margin-top:3px} .sc-card .d.up{color:var(--good)} .sc-card .d.down{color:var(--hi)} .sc-card .d.flat{color:var(--mut)}
+  .sc-card .sub{font-size:12px;color:var(--mut);margin-top:7px;border-top:1px solid var(--line);padding-top:7px}
+  /* ---- Weekly GTM chart grid ---- */
+  .gtm-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:10px 0 20px}
+  .gtm-charts .card{height:250px;margin:0;padding:12px}
+  .gtm-det{border:1px solid var(--line);border-radius:11px;margin:16px 0 4px;background:#fdfaf5}
+  .gtm-det>summary{cursor:pointer;padding:12px 16px;font-weight:600;font-family:var(--serif);font-size:15px;color:var(--ink);list-style:none}
+  .gtm-det>summary::-webkit-details-marker{display:none}
+  .gtm-det>summary:before{content:'▸  ';color:var(--accent)} .gtm-det[open]>summary:before{content:'▾  '}
+  .gtm-det>.gtm-det-body{padding:0 16px 14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brandbar">
+    <img class="logo-img" src="logo.png" alt="StableTrack">
+    <span class="seplabel">GTM</span>
+    <span style="flex:1"></span>
+    <div class="bar-actions">
+      <span class="ts" id="ts"></span>
+      <a href="#" onclick="loadAll();return false" title="Refresh data">↻</a>
+      <a href="/logout" title="Log out">⎋</a>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="panel" data-p="weekly-gtm">
+    <div class="phead"><span class="asof" id="asof-weekly-gtm"></span></div>
+    <div id="gtmDoc"></div>
+  </div>
+
+  <div class="panel" data-p="reports">
+    <div class="rv">
+      <aside class="rv-rail">
+        <div><div class="rv-lbl">Week</div><select class="rv-week" id="wkSel" onchange="pickWeek(this.value)"></select></div>
+        <div><div class="rv-lbl">Reports this week</div><div id="rvCards"></div></div>
+      </aside>
+      <article class="rv-doc card" id="rvDoc"></article>
+    </div>
+  </div>
+
+  <div class="panel" data-p="actions">
+    <div class="ctrls">
+      <input type="text" id="aSearch" placeholder="search signals…" oninput="renderActions()">
+      <select id="aPri" onchange="renderActions()"><option value="">All priorities</option><option>High</option><option>Medium</option><option>Low</option></select>
+      <select id="aSrc" onchange="renderActions()"><option value="">All sources</option><option>Market Intel</option><option>Performance</option></select>
+      <span class="sub" id="aCount"></span>
+      <span style="flex:1"></span><span class="asof" id="asof-actions"></span>
+    </div>
+    <div class="card flow"><table id="actions"></table></div>
+  </div>
+
+  <div class="panel" data-p="social">
+    <div class="phead"><span class="asof" id="asof-social"></span></div>
+    <div id="socialTiles" class="rv-metrics"></div>
+    <div id="socialCards" class="sc-grid"></div>
+    <div class="split">
+      <div class="card"><canvas id="socialChart" height="170"></canvas></div>
+      <div class="card flow"><table id="social"></table></div>
+    </div>
+  </div>
+
+  <div class="panel" data-p="seo">
+    <div class="phead"><span class="asof" id="asof-seo"></span></div>
+    <div id="seoTiles" class="rv-metrics"></div>
+    <div class="split">
+      <div class="card"><canvas id="seoChart" height="170"></canvas></div>
+      <div class="card flow"><table id="seo"></table></div>
+    </div>
+  </div>
+
+  <div class="panel" data-p="strategy">
+    <div class="phead"><span class="asof" id="asof-strategy"></span></div>
+    <div class="grid2"><div class="card" id="brief"></div><div class="card" id="pstatus"></div></div>
+    <div class="card flow"><table id="slate"></table></div>
+  </div>
+
+  <div class="panel" data-p="blogposts">
+    <div class="phead"><span class="sub" id="bpCount"></span><span style="flex:1"></span><span class="asof" id="asof-blogposts"></span></div>
+    <div id="blogList"></div>
+  </div>
+
+  <div class="panel" data-p="intel"><div class="phead"><span class="asof" id="asof-intel"></span></div><div class="card" id="mi"></div></div>
+</div>
+
+<!-- floating AI chatbot -->
+<button id="chatFab" onclick="toggleChat()" title="Ask AI about your data">💬<span>Ask&nbsp;AI</span></button>
+<div id="chatwidget">
+  <div class="cw-head"><img class="cw-mark" src="icon.png" alt="StableTrack"><div class="cw-title"><b>StableTrack AI</b><span class="sub">Ask about your pipeline data</span></div><span style="flex:1"></span><span class="cw-x" onclick="toggleChat()">✕</span></div>
+  <div id="chatlog"><div class="msg a">Hi! Ask me anything about your pipeline data — signals, social numbers, SEO, the brief.</div>
+    <div class="chips"><span class="chip" onclick="ask(this.textContent)">Top High-priority action items?</span><span class="chip" onclick="ask(this.textContent)">Best social channel by engagement?</span><span class="chip" onclick="ask(this.textContent)">Summarize this week in 3 bullets</span></div>
+  </div>
+  <div class="chatrow"><input type="text" id="chatIn" placeholder="Ask about the data…" onkeydown="if(event.key==='Enter')ask()"><button id="chatBtn" onclick="ask()">Send</button></div>
+</div>
+
+<script>
+const SB='https://braxlluhffpmdvtxstjx.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyYXhsbHVoZmZwbWR2dHhzdGp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNjEzNDksImV4cCI6MjA5NTkzNzM0OX0.hXGJee6uY9a2bgELfga9FSCK9b5wsQpZ8cXHHltobhI';
+const q=async(v,p='')=>{const r=await fetch(`${SB}/rest/v1/${v}?${p}`,{headers:{apikey:KEY,Authorization:`Bearer ${KEY}`,'Accept-Profile':'reporting'}});if(!r.ok)throw new Error(v+' '+r.status);return r.json();};
+const esc=s=>String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const D={}; let charts={};
+const TABS=[['weekly-gtm','📊 Weekly GTM'],['reports','📄 Weekly Reports'],['actions','🚨 Action Items'],['social','📣 Social'],['seo','📈 SEO'],['strategy','🧠 Strategy'],['blogposts','✍️ Blog Posts'],['intel','🔭 Market Intel']];
+
+// ---- tabs ----
+document.getElementById('tabs').innerHTML=TABS.map((t,i)=>`<div class="tab${i===0?' active':''}" data-t="${t[0]}" onclick="showTab('${t[0]}')">${t[1]}</div>`).join('');
+document.querySelector('.panel[data-p=weekly-gtm]').classList.add('active');
+function showTab(t){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.t===t));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.dataset.p===t));}
+
+// ---- generic sortable table ----
+function makeTable(elId, cols, rows, opts={}){
+  const st=opts.sort||{};
+  const el=document.getElementById(elId);
+  const head='<tr>'+cols.map(c=>`<th class="sortable ${c.num?'num':''}" onclick="sortBy('${elId}','${c.k}')">${c.h}</th>`).join('')+'</tr>';
+  let data=[...rows];
+  if(st.k){ data.sort((a,b)=>{let x=a[st.k],y=b[st.k]; if(c_isNum(x)&&c_isNum(y)){x=+x;y=+y;} else {x=String(x||'').toLowerCase();y=String(y||'').toLowerCase();} return (x<y?-1:x>y?1:0)*(st.dir||1);}); }
+  const body=data.length?data.map((r,i)=>{
+    const main='<tr class="'+(opts.expand?'exp" onclick="toggleDet(this)':'')+'">'+cols.map(c=>`<td class="${c.num?'num':''}">${c.render?c.render(r):esc(r[c.k])}</td>`).join('')+'</tr>';
+    const det=opts.expand?('<tr class="det-row" style="display:none"><td colspan="'+cols.length+'"><div class="det">'+opts.expand(r)+'</div></td></tr>'):'';
+    return main+det;
+  }).join(''):`<tr><td class="empty" colspan="${cols.length}">no rows</td></tr>`;
+  el.innerHTML=head+body;
+}
+const c_isNum=v=>v!==''&&v!=null&&!isNaN(+v);
+const _sortState={};
+function sortBy(elId,k){const s=_sortState[elId]=_sortState[elId]||{};s.dir=(s.k===k)?-(s.dir||1):1;s.k=k;renderTab(elId);}
+function toggleDet(tr){const n=tr.nextElementSibling;if(n&&n.classList.contains('det-row'))n.style.display=n.style.display==='none'?'':'none';}
+
+// ---- per-table renderers ----
+function renderActions(){
+  const term=(document.getElementById('aSearch').value||'').toLowerCase(), pri=document.getElementById('aPri').value, src=document.getElementById('aSrc').value;
+  let rows=(D.actions||[]).filter(r=>(!pri||r.priority===pri)&&(!src||r.source===src)&&(!term||(r.signal||'').toLowerCase().includes(term)||(r.suggested_action||'').toLowerCase().includes(term)));
+  document.getElementById('aCount').textContent=rows.length+' of '+(D.actions||[]).length;
+  const cols=[{k:'priority',h:'Pri',render:r=>`<span class="p-${esc(r.priority)}">${esc(r.priority)}</span>`},{k:'source',h:'Source'},{k:'type',h:'Type',render:r=>`<span class="mut">${esc(r.type)}</span>`},{k:'signal',h:'Signal',render:r=>r.url?`<a href="${esc(r.url)}" target="_blank">${esc(r.signal)}</a>`:esc(r.signal)}];
+  const s=_sortState.actions; if(s&&s.k)cols;
+  makeTableSorted('actions',cols,rows,{expand:r=>`Why: ${esc(r.why_it_matters)}\nAction: ${esc(r.suggested_action)}`});
+}
+function makeTableSorted(elId,cols,rows,opts){const s=_sortState[elId];if(s&&s.k){rows=[...rows].sort((a,b)=>{let x=a[s.k],y=b[s.k];if(c_isNum(x)&&c_isNum(y)){x=+x;y=+y;}else{x=String(x||'').toLowerCase();y=String(y||'').toLowerCase();}return(x<y?-1:x>y?1:0)*s.dir;});}makeTable(elId,cols,rows,opts);}
+function renderSocial(){
+  const s=D.social||[];const sum=k=>s.reduce((a,r)=>a+(+r[k]||0),0);const netd=sum('follower_change');
+  document.getElementById('socialTiles').innerHTML=[
+    {l:'Followers',v:sum('followers').toLocaleString()},{l:'Net change',v:(netd>=0?'+':'')+netd},
+    {l:'Engagements',v:sum('total_engagements').toLocaleString()},{l:'Posts',v:sum('posts_published')},
+  ].map(t=>`<div class="rv-m"><div class="ml">${t.l}</div><div class="mv">${t.v}</div></div>`).join('');
+  const ic={LinkedIn:'💼',Instagram:'📸',Facebook:'👍',YouTube:'▶️',TikTok:'🎵',X:'𝕏'};
+  document.getElementById('socialCards').innerHTML=s.map(r=>{const d=+r.follower_change||0,dir=d>0?'up':d<0?'down':'flat';
+    return `<div class="sc-card"><div class="ch"><b>${ic[r.channel]||'📡'} ${esc(r.channel)}</b><span class="er">ER ${esc(r.engagement_rate)}%</span></div>`+
+      `<div class="big">${(+r.followers||0).toLocaleString()} <span class="u">followers</span></div>`+
+      `<div class="d ${dir}">${dir==='up'?'▲ ':dir==='down'?'▼ ':''}${d>=0?'+':''}${d} this week</div>`+
+      `<div class="sub">${(+r.total_engagements||0).toLocaleString()} eng · ${r.posts_published||0} posts · ${(+r.likes_total||0).toLocaleString()} likes · ${(+r.comments_total||0)} cmts</div></div>`;}).join('');
+  makeTableSorted('social',[{k:'channel',h:'Channel'},{k:'followers',h:'Followers',num:1},{k:'follower_change',h:'Δ',num:1},{k:'total_engagements',h:'Eng',num:1},{k:'likes_total',h:'Likes',num:1},{k:'comments_total',h:'Cmts',num:1},{k:'shares_total',h:'Shares',num:1},{k:'views',h:'Views',num:1},{k:'engagement_rate',h:'Eng%',num:1}],s);
+}
+function renderSeo(){
+  const all=D.seo||[];const find=n=>all.find(x=>x.metric===n);
+  const tile=(label,name,suffix,lib)=>{const r=find(name);if(!r)return null;const v=r.value_28d!=null?r.value_28d:r.value_7d;if(v==null)return null;const dd=r.wow_change_pct!=null?r.wow_change_pct:r.mom_change_pct;return {label,value:v,suffix:suffix||'',delta:dd!=null?dd:null,deltaKind:'pct',lowerIsBetter:!!lib};};
+  const tiles=[tile('Clicks','GSC clicks'),tile('Impressions','GSC impressions'),tile('CTR','GSC CTR','%'),tile('Avg position','GSC avg position',null,true),tile('Sessions','Sessions'),tile('Conversions','Conversions'),tile('Organic keywords','Organic keywords'),tile('Est. traffic','Organic traffic (est)')].filter(Boolean);
+  document.getElementById('seoTiles').innerHTML=tiles.map(metricTile).join('');
+  const rows=all.filter(r=>!/by (channel|country)/i.test(r.metric)); // drop the breakdown dupes
+  makeTableSorted('seo',[{k:'source',h:'Source'},{k:'metric',h:'Metric'},{k:'value_7d',h:'7d',num:1},{k:'value_28d',h:'28d',num:1},{k:'wow_change_pct',h:'WoW%',num:1},{k:'mom_change_pct',h:'MoM%',num:1}],rows);
+}
+function renderSlate(){makeTableSorted('slate',[{k:'type',h:'Type',render:r=>`<span class="tag">${esc(r.type)}</span>`},{k:'item',h:'Item'},{k:'pillar',h:'Pillar',render:r=>`<span class="mut">${esc(r.pillar)}</span>`},{k:'status',h:'Status'}],D.slate||[]);}
+function renderTab(elId){({actions:renderActions,social:renderSocial,seo:renderSeo,slate:renderSlate}[elId]||(()=>{}))();}
+
+// ---- Blog Posts: read finished drafts, change status; choosing Published saves to Supabase & hides it ----
+function renderBlogposts(){
+  const rows=D.blogdrafts||[];
+  const cEl=document.getElementById('bpCount'); if(cEl) cEl.textContent=rows.length+' draft'+(rows.length===1?'':'s')+' awaiting review';
+  const el=document.getElementById('blogList'); if(!el) return;
+  if(!rows.length){ el.innerHTML='<div class="empty">No blog drafts awaiting review. (Published ones are hidden.)</div>'; return; }
+  const STATUSES=['Draft','Needs Revision','Published','Archived'];
+  el.innerHTML=rows.map(r=>{
+    const opts=STATUSES.map(s=>`<option${s===r.status?' selected':''}>${s}</option>`).join('');
+    return `<div class="card" style="margin-bottom:14px">
+      <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:240px">
+          <b style="font-size:15px">${esc(r.title||'(untitled)')}</b>
+          <div class="mut" style="margin-top:3px">${esc(r.product_type||'')} · ${r.word_count||0} words · ${esc((r.created_at||'').slice(0,10))}${r.target_keyword?' · keyword: '+esc(r.target_keyword):''}</div>
+          ${r.meta_description?`<div class="mut" style="margin:6px 0;font-style:italic">${esc(r.meta_description)}</div>`:''}
+        </div>
+        <div style="text-align:right">
+          <select onchange="setBlogStatus('${esc(r.id)}',this.value,this)" style="padding:6px 8px;border:1px solid #e8ddd0;border-radius:8px;color:#3E2723;background:#fff;font-size:13px">${opts}</select>
+          <div class="bp-msg mut" style="font-size:12px;margin-top:4px;min-height:14px"></div>
+        </div>
+      </div>
+      <details style="margin-top:8px"><summary style="cursor:pointer;color:#C6761E;font-weight:600">Read full article</summary>
+        <div style="white-space:pre-wrap;margin-top:8px;max-height:440px;overflow:auto;border-top:1px solid #eee;padding-top:8px;line-height:1.55">${esc(r.body_markdown||'')}</div>
+      </details>
+    </div>`;
+  }).join('');
+}
+async function setBlogStatus(id,status,sel){
+  const card=sel.closest('.card'), msg=card&&card.querySelector('.bp-msg');
+  sel.disabled=true; if(msg) msg.textContent='saving…';
+  try{
+    const r=await fetch('/api/publish',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id,status})});
+    const j=await r.json();
+    if(!j.ok) throw new Error(j.error||('HTTP '+r.status));
+    if(status==='Published'||status==='Archived'){
+      D.blogdrafts=(D.blogdrafts||[]).filter(x=>String(x.id)!==String(id));
+      renderBlogposts();
+    } else {
+      const row=(D.blogdrafts||[]).find(x=>String(x.id)===String(id)); if(row) row.status=status;
+      if(msg) msg.textContent='saved ✓'; sel.disabled=false;
+    }
+  }catch(e){ if(msg) msg.textContent='error: '+e.message; sel.disabled=false; }
+}
+
+function renderStrategy(){
+  const b=(D.brief||[])[0];
+  document.getElementById('brief').innerHTML='<b>Current brief</b><br>'+(b?`<div class="focus" style="margin:4px 0">${esc(b.focus)}</div><div class="mut">${esc(b.period_start)} → ${esc(b.period_end)}</div><div style="margin:6px 0">${esc(b.summary)}</div><span class="pill">${b.blog_topics} blogs</span><span class="pill">${b.social_posts} social</span>`:'<div class="empty">No active brief (latest Draft, awaiting Slack approval).</div>');
+  const ps=D.pstatus||[];
+  document.getElementById('pstatus').innerHTML='<b>Pipeline status</b>'+(ps.length?'<table style="margin-top:6px">'+ps.map(x=>`<tr><td>${esc(x.stage)}</td><td><span class="tag">${esc(x.status)}</span></td><td class="num">${x.n}</td></tr>`).join('')+'</table>':'<div class="empty">empty</div>');
+  renderSlate();
+}
+function renderIntel(){const r=(D.intel||[]);document.getElementById('mi').innerHTML=r.length?r.map(x=>`<div class="mut">${esc(x.as_of||x.run_date)}</div><div class="focus" style="margin:3px 0">${esc(x.headline)}</div><div class="mut" style="white-space:pre-line">${esc(x.top_3_actions)}</div>`).join('<hr style="border-color:var(--line)">'):'<div class="empty">no live report</div>';}
+
+// ---- Weekly GTM (live Apollo + HubSpot via /api/gtm-weekly, + Supabase SEO) ----
+function buildSeoTiles(){
+  const all=D.seo||[];const find=n=>all.find(x=>x.metric===n);
+  const tile=(label,name,suffix,lib)=>{const r=find(name);if(!r)return null;const v=r.value_28d!=null?r.value_28d:r.value_7d;if(v==null)return null;const dd=r.wow_change_pct!=null?r.wow_change_pct:r.mom_change_pct;return {label,value:v,suffix:suffix||'',delta:dd!=null?dd:null,deltaKind:'pct',lowerIsBetter:!!lib};};
+  return [tile('Clicks','GSC clicks'),tile('Impressions','GSC impressions'),tile('CTR','GSC CTR','%'),tile('Avg position','GSC avg position',null,true),tile('Organic keywords','Organic keywords')].filter(Boolean);
+}
+const kvTable=(obj,h1,h2)=>{const ks=Object.keys(obj||{});if(!ks.length)return '';return `<table><tr><th>${h1}</th><th class="num">${h2}</th></tr>`+ks.map(k=>`<tr><td>${esc(k)}</td><td class="num">${obj[k]}</td></tr>`).join('')+`</table>`;};
+function renderWeeklyGtm(){
+  const el=document.getElementById('gtmDoc'); if(!el) return;
+  const g=D.gtm||{};
+  if(g.loading){el.innerHTML='<div class="rv-doc card"><div class="empty">Pulling live Apollo + HubSpot numbers…</div></div>';return;}
+  if(g.error){el.innerHTML=`<div class="rv-doc card"><div class="rv-empty"><div class="ei">⚠️</div><div class="et">Couldn’t load live GTM data</div><div>${esc(g.error)}</div></div></div>`;return;}
+  const w=g.window||{},a=g.apollo||{},t=g.trials||{},dl=g.deals||{},dm=g.demos||{},cc=g.contacts_created||{},man=g.manual||{};
+  const wkLabel=w.start?`Week of ${fmtWk(w.start)} – ${fmtWk(w.end)}`:'Last week';
+  let h=`<div class="rv-doc card"><div class="rv-head"><h1>📊 Weekly GTM Report</h1><div><span class="rv-st live">Live</span><div class="rv-sub">${esc(wkLabel)}</div></div></div>`;
+
+  const pr=g.product||{};
+  // ── KPI strip: the headline numbers ──
+  h+=`<div class="rv-metrics">${[
+    {label:'Emails sent',value:a.emails_sent!=null?a.emails_sent:'—'},
+    {label:'Open rate',value:a.open_rate_pct!=null?a.open_rate_pct:'—',suffix:a.open_rate_pct!=null?'%':''},
+    {label:'Replies',value:a.replies!=null?a.replies:'—'},
+    {label:'Signups',value:t.signups_last_week!=null?t.signups_last_week:'—'},
+    {label:'Trial pipeline',value:t.total_active!=null?t.total_active:'—'},
+    {label:'Demos',value:dm.stabletrack!=null?dm.stabletrack:'—'},
+    {label:'Open deals',value:dl.open_total!=null?dl.open_total:'—'},
+    {label:'Active users',value:pr.active_users_week!=null?pr.active_users_week:'—'},
+  ].map(metricTile).join('')}</div>`;
+  // ── "What happened this week" (auto highlights) ──
+  const hi=[];
+  if(a.emails_sent!=null)hi.push(`<b>${a.emails_sent}</b> outbound emails sent${a.open_rate_pct!=null?` · <b>${a.open_rate_pct}%</b> open`:''}${a.replies!=null?` · <b>${a.replies}</b> repl${a.replies===1?'y':'ies'}`:''}`);
+  if(t.signups_last_week!=null)hi.push(`<b>${t.signups_last_week}</b> new signup${t.signups_last_week===1?'':'s'}${t.total_active!=null?` · <b>${t.total_active}</b> trials in pipeline`:''}`);
+  if(dm.stabletrack!=null)hi.push(`<b>${dm.stabletrack}</b> StableTrack demo${dm.stabletrack===1?'':'s'} booked`);
+  if(dl.open_total!=null)hi.push(`<b>${dl.open_total}</b> open deals${Array.isArray(dl.opportunities)?` · <b>${dl.opportunities.length}</b> in opportunity stage`:''}`);
+  if(pr.active_users_week!=null)hi.push(`<b>${pr.active_users_week}</b> weekly active users${pr.avg_session_min!=null?` · <b>${pr.avg_session_min}</b> min avg session`:''}`);
+  if(hi.length)h+=`<div class="rv-callout"><span class="cl">What happened this week</span><ul class="rv-md" style="margin:6px 0 0;padding-left:18px">${hi.map(x=>'<li style="margin:3px 0">'+x+'</li>').join('')}</ul></div>`;
+  // ── charts (rendered after innerHTML by drawGtmCharts) ──
+  let cg='';const cCard=id=>`<div class="card"><canvas id="${id}"></canvas></div>`;
+  if(!dl.error&&dl.by_stage&&Object.keys(dl.by_stage).length)cg+=cCard('gtmPipeline');
+  if(!a.error&&a.emails_sent!=null)cg+=cCard('gtmOutbound');
+  if(!t.error&&t.by_stage&&Object.keys(t.by_stage).length)cg+=cCard('gtmTrials');
+  if(!dl.error&&dl.by_lead_type&&Object.keys(dl.by_lead_type).length)cg+=cCard('gtmLeadType');
+  if(!t.error&&t.signups_by_source&&Object.keys(t.signups_by_source).length)cg+=cCard('gtmSignups');
+  if((D.competitors||[]).length)cg+=cCard('gtmComp');
+  if(cg)h+=`<div class="gtm-charts">${cg}</div>`;
+
+  // ── everything below is detail, collapsed by default ──
+  h+=`<details class="gtm-det"><summary>Full detail — tables & breakdowns</summary><div class="gtm-det-body">`;
+
+  // ── Sales pipeline (HubSpot deals) ──
+  h+=`<div class="rv-sec"><h2>💼 Sales Pipeline (deals)</h2>`;
+  if(dl.error){h+=`<div class="empty">${esc(dl.error)}</div>`;}
+  else{
+    h+=`<div class="rv-metrics">${[
+      {label:'Open deals',value:dl.open_total!=null?dl.open_total:'—'},
+      {label:'Opportunities',value:Array.isArray(dl.opportunities)?dl.opportunities.length:'—'},
+      {label:'Closed Won (wk)',value:dl.closed_won_this_week!=null?dl.closed_won_this_week:'—'},
+      {label:'Closed Lost (wk)',value:dl.closed_lost_this_week!=null?dl.closed_lost_this_week:'—'},
+    ].map(metricTile).join('')}</div>`;
+    h+=`<div class="grid2">`;
+    h+=`<div><div class="sub" style="margin:2px 2px 6px">By stage</div>${kvTable(dl.by_stage,'Stage','Count')}</div>`;
+    h+=`<div><div class="sub" style="margin:2px 2px 6px">By lead type</div>${kvTable(dl.by_lead_type,'Lead type','Count')}</div>`;
+    h+=`</div>`;
+    const os=dl.by_owner_stage||{};const owners=Object.keys(os);
+    if(owners.length){
+      const stages=[...new Set(owners.flatMap(o=>Object.keys(os[o])))];
+      h+=`<div class="sub" style="margin:10px 2px 6px">By owner × stage</div><table><tr><th>Owner</th>${stages.map(s=>`<th class="num">${esc(s)}</th>`).join('')}</tr>`+
+        owners.map(o=>`<tr><td>${esc(o)}</td>${stages.map(s=>`<td class="num">${os[o][s]||0}</td>`).join('')}</tr>`).join('')+`</table>`;
+    }
+    if(Array.isArray(dl.opportunities)&&dl.opportunities.length){
+      h+=`<div class="sub" style="margin:10px 2px 6px">Opportunities (Proposal / Negotiation / Warm Trial-Hot)</div><table><tr><th>Account</th><th>Stage</th><th>Owner</th></tr>`+
+        dl.opportunities.map(o=>`<tr><td>${esc(o.name)}</td><td>${esc(o.stage)}</td><td>${esc(o.owner)}</td></tr>`).join('')+`</table>`;
+    }
+  }
+  h+=`</div>`;
+
+  // ── Demos ──
+  h+=`<div class="rv-sec"><h2>🎥 Demos <span class="sub" style="font-weight:400">(Calendly)</span></h2>`;
+  if(dm.error){h+=`<div class="empty">${esc(dm.error)}</div>`;}
+  else{
+    h+=`<div class="rv-metrics">${[
+      {label:'StableTrack demos',value:dm.stabletrack!=null?dm.stabletrack:'—'},
+      {label:'All booked events',value:dm.total_events!=null?dm.total_events:'—'},
+    ].map(metricTile).join('')}</div>`;
+    if(dm.by_type&&Object.keys(dm.by_type).length)h+=`<div class="sub" style="margin:2px 2px 6px">Booked events by type</div>${kvTable(dm.by_type,'Event type','Count')}`;
+    if(Array.isArray(dm.list)&&dm.list.length)h+=`<div class="sub" style="margin:10px 2px 6px">StableTrack demos this week</div><table><tr><th>Demo</th><th>When</th></tr>`+dm.list.map(m=>`<tr><td>${esc(m.title)}</td><td>${esc((m.when||'').slice(0,16).replace('T',' '))}</td></tr>`).join('')+`</table>`;
+  }
+  h+=`</div>`;
+
+  // ── Signups & trials (HubSpot) ──
+  h+=`<div class="rv-sec"><h2>🧪 Signups & Trials</h2>`;
+  if(t.error){h+=`<div class="empty">${esc(t.error)}</div>`;}
+  else{
+    h+=`<div class="rv-metrics">${[
+      {label:'Signups last week',value:t.signups_last_week!=null?t.signups_last_week:'—'},
+      {label:'Total trial pipeline',value:t.total_active!=null?t.total_active:'—'},
+      {label:'Expired',value:t.expired!=null?t.expired:'—'},
+      {label:'New leads (MQL+)',value:cc.leads_mql_or_higher!=null?cc.leads_mql_or_higher:'—'},
+      {label:'Inbound demo reqs',value:cc.inbound_demo_requests!=null?cc.inbound_demo_requests:'—'},
+    ].map(metricTile).join('')}</div>`;
+    h+=`<div class="grid2">`;
+    h+=`<div><div class="sub" style="margin:2px 2px 6px">Active trials by stage</div>${kvTable(t.by_stage,'Stage','Count')}</div>`;
+    h+=`<div><div class="sub" style="margin:2px 2px 6px">Signups by source</div>${kvTable(t.signups_by_source,'Source','Count')}</div>`;
+    h+=`</div>`;
+    if(Array.isArray(t.signups_detail)&&t.signups_detail.length){
+      h+=`<div class="sub" style="margin:10px 2px 6px">Signups this week</div><table><tr><th>Email</th><th>Attribution</th><th>Stage</th></tr>`+
+        t.signups_detail.map(s=>`<tr><td>${esc(s.email)}</td><td>${esc(s.source)}</td><td>${esc(s.stage||'—')}</td></tr>`).join('')+`</table>`;
+    }
+    if(cc.by_lead_type)h+=`<div class="sub" style="margin:10px 2px 6px">New contacts this week by lead type</div>${kvTable(cc.by_lead_type,'Lead type','Count')}`;
+  }
+  h+=`</div>`;
+
+  // ── Outbound (Apollo) ──
+  h+=`<div class="rv-sec"><h2>📧 Outbound (Apollo)</h2>`;
+  if(a.error){h+=`<div class="empty">${esc(a.error)}</div>`;}
+  else{
+    h+=`<div class="rv-metrics">${[
+      {label:'Emails sent',value:a.emails_sent!=null?a.emails_sent:'—'},
+      {label:'Open rate',value:a.open_rate_pct!=null?a.open_rate_pct:'—',suffix:a.open_rate_pct!=null?'%':''},
+      {label:'Click rate',value:a.click_rate_pct!=null?a.click_rate_pct:'—',suffix:a.click_rate_pct!=null?'%':''},
+      {label:'Replies',value:a.replies!=null?a.replies:'—'},
+      {label:'Reply rate',value:a.reply_rate!=null?a.reply_rate:'—',suffix:a.reply_rate!=null?'%':''},
+      {label:'Bounced',value:a.bounced!=null?a.bounced:'—'},
+    ].map(metricTile).join('')}</div>`;
+    if(Array.isArray(a.active_sequences)&&a.active_sequences.length){
+      h+=`<div class="sub" style="margin:2px 2px 6px">Active sequences (${a.active_sequences.length})</div><table><tr><th>Sequence</th><th class="num">Open%</th><th class="num">Click%</th><th class="num">Sent this wk</th></tr>`+
+        a.active_sequences.map(s=>`<tr><td>${esc(s.name)}</td><td class="num">${s.open_rate_pct!=null?s.open_rate_pct:'—'}</td><td class="num">${s.click_rate_pct!=null?s.click_rate_pct:'—'}</td><td class="num">${(a.by_campaign&&a.by_campaign[s.name])||0}</td></tr>`).join('')+`</table>`;
+    }
+  }
+  h+=`</div>`;
+
+  // ── SEO & competitors (Supabase) ──
+  const seoTiles=buildSeoTiles();
+  h+=`<div class="rv-sec"><h2>📈 SEO & Competitors</h2>`;
+  if(seoTiles.length)h+=`<div class="rv-metrics">${seoTiles.map(metricTile).join('')}</div>`;
+  const comp=D.competitors||[];
+  if(comp.length){
+    h+=`<div class="sub" style="margin:6px 2px 6px">Visibility / Top-N by domain (tracked keywords)</div><table><tr><th>Domain</th><th class="num">Top 3</th><th class="num">Top 10</th><th class="num">Top 20</th><th class="num">Avg pos</th></tr>`+
+      comp.map(r=>`<tr><td>${esc(r.domain)}</td><td class="num">${r.top3||0}</td><td class="num">${r.top10||0}</td><td class="num">${r.top20||0}</td><td class="num">${r.avg_pos!=null?r.avg_pos:'—'}</td></tr>`).join('')+`</table>`;
+  }
+  const mv=D.movers||[];
+  if(mv.length){
+    const aio=mv.filter(r=>/aio/i.test(JSON.stringify(r.serp_features||''))).length;
+    h+=`<div class="sub" style="margin:10px 2px 6px">AI Overview coverage: ${aio} of ${mv.length} tracked keywords · top movers</div><table><tr><th>Keyword</th><th class="num">Pos</th><th class="num">Prev</th><th class="num">Δ</th></tr>`+
+      mv.slice(0,10).map(r=>`<tr><td>${esc(r.keyword)}</td><td class="num">${r.position!=null?r.position:'—'}</td><td class="num">${r.prev_position!=null?r.prev_position:'—'}</td><td class="num">${r.delta!=null?r.delta:'—'}</td></tr>`).join('')+`</table>`;
+  }
+  if(!seoTiles.length&&!comp.length&&!mv.length)h+=`<div class="empty">No SEO data in this week’s pull.</div>`;
+  h+=`</div>`;
+
+  // ── Content & Social (Supabase) ──
+  const soc=D.social||[];
+  h+=`<div class="rv-sec"><h2>📣 Content & Social</h2>`;
+  h+=`<div class="rv-metrics">${[
+    {label:'Blog posts published',value:man.blog_posts_published!=null?man.blog_posts_published:'—'},
+    {label:'Social posts',value:soc.reduce((a,r)=>a+(+r.posts_published||0),0)||'—'},
+    {label:'Social engagements',value:soc.reduce((a,r)=>a+(+r.total_engagements||0),0).toLocaleString()},
+  ].map(metricTile).join('')}</div>`;
+  if(soc.length)h+=`<table><tr><th>Channel</th><th class="num">Followers</th><th class="num">Δ</th><th class="num">Posts</th><th class="num">Eng</th></tr>`+
+    soc.map(r=>`<tr><td>${esc(r.channel)}</td><td class="num">${(+r.followers||0).toLocaleString()}</td><td class="num">${r.follower_change||0}</td><td class="num">${r.posts_published||0}</td><td class="num">${(+r.total_engagements||0).toLocaleString()}</td></tr>`).join('')+`</table>`;
+  h+=`<div class="sub" style="margin-top:6px">Blog count = Notion content DB (to wire).</div>`;
+  h+=`</div>`;
+
+  // ── Product engagement (Amplitude, live) ── (pr declared above)
+  h+=`<div class="rv-sec"><h2>📊 Product Engagement <span class="sub" style="font-weight:400">(Amplitude)</span></h2>`;
+  if(pr.error){h+=`<div class="empty">${esc(pr.error)}</div>`;}
+  else{
+    h+=`<div class="rv-metrics">${[
+      {label:'Active users (week)',value:pr.active_users_week!=null?pr.active_users_week:'—'},
+      {label:'Active users (30d)',value:pr.active_users_30d!=null?pr.active_users_30d:'—'},
+      {label:'New users (30d)',value:pr.new_users_30d!=null?pr.new_users_30d:'—'},
+      {label:'Avg session (min)',value:pr.avg_session_min!=null?pr.avg_session_min:'—'},
+    ].map(metricTile).join('')}</div>`;
+  }
+  h+=`</div>`;
+  // ── Manual inputs (no live API source) ──
+  h+=`<div class="rv-sec"><h2>✍️ Manual Inputs <span class="sub" style="font-weight:400">(no live source yet)</span></h2>`;
+  h+=`<div class="rv-metrics">${[
+    {label:'SEO visibility %',value:man.seo_visibility_pct!=null?man.seo_visibility_pct:'—'},
+    {label:'ChatGPT/Gemini vis %',value:man.chatgpt_gemini_brand_visibility_pct!=null?man.chatgpt_gemini_brand_visibility_pct:'—'},
+    {label:'New backlinks',value:man.backlinks_new!=null?man.backlinks_new:'—'},
+    {label:'Blog posts published',value:man.blog_posts_published!=null?man.blog_posts_published:'—'},
+  ].map(metricTile).join('')}</div>`;
+  h+=`<div class="sub" style="margin-top:6px">SEMrush visibility/AEO (API units exhausted), backlinks, and Notion blog count — fill weekly or wire later.</div>`;
+  h+=`</div>`;
+
+  // ── Notes ──
+  if(Array.isArray(g.notes)&&g.notes.length)h+=`<div class="rv-sec"><h2>ℹ️ Notes & caveats</h2><ul class="rv-md" style="margin:0;padding-left:20px">${g.notes.map(n=>'<li>'+esc(n)+'</li>').join('')}</ul></div>`;
+  h+=`</div></details>`;
+  h+=`<div class="sub" style="margin-top:10px">Live pull${g.generated_at?' · generated '+new Date(g.generated_at).toLocaleString():''} · <a href="#" onclick="refreshGtm();return false">refresh</a></div></div>`;
+  el.innerHTML=h;
+  setAsof('asof-weekly-gtm',w.end);
+  try{drawGtmCharts(g);}catch(e){}
+}
+function drawGtmCharts(g){
+  if(typeof Chart==='undefined')return;
+  Object.keys(charts).filter(k=>k.indexOf('gtm_')===0).forEach(k=>{try{charts[k].destroy();}catch(e){}delete charts[k];});
+  const P=['#C6761E','#5D4037','#E9A319','#3E8E5A','#8B4513','#A0522D','#cfa15a'];
+  const TXT='#9a8979',GRID='rgba(62,39,35,.07)';
+  const mk=(id,cfg)=>{const c=document.getElementById(id);if(c)charts['gtm_'+id]=new Chart(c,cfg);};
+  const barOpts=t=>({responsive:true,maintainAspectRatio:false,plugins:{title:{display:true,text:t,color:'#5D4037',font:{weight:'600'}},legend:{display:false}},scales:{x:{ticks:{color:TXT},grid:{color:GRID}},y:{beginAtZero:true,ticks:{color:TXT,precision:0},grid:{color:GRID}}}});
+  const dough=t=>({responsive:true,maintainAspectRatio:false,plugins:{title:{display:true,text:t,color:'#5D4037',font:{weight:'600'}},legend:{position:'right',labels:{color:TXT,font:{size:10},boxWidth:12}}}});
+  const a=g.apollo||{},t=g.trials||{},dl=g.deals||{};
+  const ps=dl.by_stage||{};const ORDER=['Qualified','Demo / Discovery','Proposal','Negotiation','Warm Trial - Hot'];
+  const psO=ORDER.filter(k=>ps[k]!=null).concat(Object.keys(ps).filter(k=>ORDER.indexOf(k)<0));
+  if(psO.length)mk('gtmPipeline',{type:'bar',data:{labels:psO,datasets:[{data:psO.map(k=>ps[k]),backgroundColor:P[0]}]},options:barOpts('Sales pipeline by stage')});
+  if(!a.error&&a.emails_sent!=null){const sent=a.emails_sent||0,op=Math.round(sent*(a.open_rate_pct||0)/100),cl=Math.round(sent*(a.click_rate_pct||0)/100),rp=a.replies||0;
+    mk('gtmOutbound',{type:'bar',data:{labels:['Sent','Opens','Clicks','Replies'],datasets:[{data:[sent,op,cl,rp],backgroundColor:[P[1],P[2],P[3],P[0]]}]},options:barOpts('Outbound funnel (this week)')});}
+  const tsb=t.by_stage||{};const tk=Object.keys(tsb);
+  if(tk.length)mk('gtmTrials',{type:'bar',data:{labels:tk,datasets:[{data:tk.map(k=>tsb[k]),backgroundColor:P[3]}]},options:barOpts('Active trials by stage')});
+  const lt=dl.by_lead_type||{};const lk=Object.keys(lt);
+  if(lk.length)mk('gtmLeadType',{type:'doughnut',data:{labels:lk,datasets:[{data:lk.map(k=>lt[k]),backgroundColor:P}]},options:dough('Deals by lead type')});
+  const sg=t.signups_by_source||{};const sk=Object.keys(sg);
+  if(sk.length)mk('gtmSignups',{type:'doughnut',data:{labels:sk,datasets:[{data:sk.map(k=>sg[k]),backgroundColor:P}]},options:dough('Signups by source')});
+  const comp=(D.competitors||[]).slice(0,8);
+  if(comp.length)mk('gtmComp',{type:'bar',data:{labels:comp.map(r=>r.domain),datasets:[{data:comp.map(r=>+r.top10||0),backgroundColor:P[4]}]},options:Object.assign(barOpts('Competitor Top-10 keywords'),{indexAxis:'y'})});
+}
+async function refreshGtm(){
+  D.gtm={loading:true};renderWeeklyGtm();
+  try{const r=await fetch('/api/gtm-weekly?refresh=1');D.gtm=r.ok?await r.json():{error:'HTTP '+r.status};}catch(e){D.gtm={error:e.message};}
+  renderWeeklyGtm();
+}
+
+// ---- Weekly Reports ----
+const RV={week:null,type:'performance'};
+const asArr=v=>{if(Array.isArray(v))return v;if(v==null||v==='')return [];try{const p=JSON.parse(v);return Array.isArray(p)?p:[];}catch(e){return [];}};
+const fmtWk=s=>{if(!s)return '';const d=new Date(s+'T00:00:00');return isNaN(d)?String(s):d.toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'});};
+function mdRender(src){
+  if(!src)return '';const lines=String(src).split('\n');const out=[];const stack=[];
+  const inl=s=>esc(s).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>').replace(/_([^_]+)_/g,'<em>$1</em>');
+  const closeAll=()=>{while(stack.length)out.push('</'+stack.pop()+'>');};
+  for(const raw of lines){const line=raw.trim();if(!line)continue;
+    const li=raw.match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
+    if(li){const tag=/\d+\./.test(li[2])?'ol':'ul';if(!stack.length){stack.push(tag);out.push('<'+tag+'>');}out.push('<li>'+inl(li[3])+'</li>');continue;}
+    closeAll();let m;
+    if((m=line.match(/^(#{1,6})\s+(.*)$/))){const h=Math.min(m[1].length,3);out.push('<h'+h+'>'+inl(m[2])+'</h'+h+'>');continue;}
+    if((m=line.match(/^>\s?(.*)$/))){out.push('<blockquote>'+inl(m[1])+'</blockquote>');continue;}
+    out.push('<p>'+inl(line)+'</p>');}
+  closeAll();return out.join('');
+}
+function renderReports(){
+  const weeks=[...new Set([...(D.weekly||[]).map(r=>r.week_start),...(D.intel||[]).map(r=>r.run_date),...(D.brief||[]).map(r=>r.period_start)].filter(Boolean))].sort().reverse();
+  const sel=document.getElementById('wkSel');
+  sel.innerHTML=weeks.length?weeks.map((w,i)=>`<option value="${w}">Week of ${fmtWk(w)}${i===0?' · latest':''}</option>`).join(''):'<option>no reports yet</option>';
+  if(!RV.week||!weeks.includes(RV.week))RV.week=weeks[0]||null;
+  if(RV.week)sel.value=RV.week;
+  renderRvRail();renderRvDoc();
+}
+function pickWeek(w){RV.week=w;renderRvRail();renderRvDoc();}
+function pickType(t){RV.type=t;renderRvRail();renderRvDoc();}
+function rvReports(){
+  const perf=(D.weekly||[]).find(r=>r.week_start===RV.week)||null;
+  const intel=(D.intel||[]).find(r=>r.run_date===RV.week)||(D.intel||[])[0]||null, brief=(D.brief||[]).find(r=>r.period_start===RV.week)||(D.brief||[])[0]||null;
+  return {
+    performance:perf?{icon:'📈',name:'Performance',status:(perf.status||'').toLowerCase()==='published'?'live':(perf.status?'draft':'none'),statusLabel:perf.status||'Draft',preview:perf.headline||'—',meta:perf.analyst_model&&perf.analyst_model.indexOf('fail')<0?'analyst report':(perf.status||'auto')}:null,
+    intel:intel?{icon:'🔭',name:'Market Intel',status:'live',statusLabel:'Live',preview:intel.headline||'—',meta:(intel.signals_generated!=null?intel.signals_generated+' signals':'')}:null,
+    strategy:brief?{icon:'🧠',name:'Strategy',status:'live',statusLabel:'Active',preview:brief.focus||'—',meta:(brief.period_start||'')+' → '+(brief.period_end||'')}:{icon:'🧠',name:'Strategy',status:'none',statusLabel:'No brief',preview:'No active brief — latest draft awaiting Slack approval.',meta:'awaiting approval'},
+  };
+}
+function renderRvRail(){
+  const R=rvReports();
+  document.getElementById('rvCards').innerHTML=['performance','intel','strategy'].map(t=>{const r=R[t];if(!r)return '';
+    return `<div class="rv-card${t===RV.type?' on':''}" onclick="pickType('${t}')"><div class="rv-top"><span class="rv-ic">${r.icon}</span><span class="rv-nm">${r.name}</span><span style="flex:1"></span><span class="rv-st ${r.status}">${esc(r.statusLabel)}</span></div><div class="rv-prev">${esc(r.preview)}</div><div class="rv-meta">${esc(r.meta)}</div></div>`;}).join('');
+}
+function metricTile(m){
+  let d='';if(m.delta!=null){const good=m.lowerIsBetter?m.delta<0:m.delta>=0;const dir=m.delta===0?'flat':(good?'up':'down');const sign=m.delta>=0?'+':'';d=`<div class="md ${dir}">${dir==='up'?'▲ ':dir==='down'?'▼ ':''}${sign}${m.delta}${m.deltaKind==='pp'?' pp':'%'}</div>`;}
+  return `<div class="rv-m"><div class="ml">${esc(m.label)}</div><div class="mv">${esc(String(m.value))}${esc(m.suffix||'')}</div>${d}</div>`;
+}
+function renderRvDoc(){
+  const el=document.getElementById('rvDoc');const t=RV.type;
+  if(t==='performance'){
+    const r=(D.weekly||[]).find(x=>x.week_start===RV.week);
+    if(!r){el.innerHTML='<div class="rv-empty"><div class="ei">📭</div><div class="et">No report for this week</div></div>';return;}
+    const wins=asArr(r.top_wins),cons=asArr(r.top_concerns),acts=asArr(r.action_items),mets=asArr(r.report_metrics);
+    let h=`<div class="rv-head"><h1>StableTrack — Weekly Performance</h1><div><span class="rv-st ${(r.status||'').toLowerCase()==='published'?'live':'draft'}">${esc(r.status||'Draft')}</span><div class="rv-sub">Week of ${fmtWk(r.week_start)}</div></div></div>`;
+    if(r.headline)h+=`<div class="rv-callout"><span class="cl">The week in one line</span>${esc(r.headline)}</div>`;
+    if(mets.length)h+=`<div class="rv-metrics">${mets.map(metricTile).join('')}</div>`;
+    if(wins.length)h+=`<div class="rv-sec"><h2>✅ Top wins <span class="ct">${wins.length}</span></h2><ol class="rv-find rv-wins">${wins.map(w=>'<li>'+esc(w)+'</li>').join('')}</ol></div>`;
+    if(cons.length)h+=`<div class="rv-sec"><h2>⚠️ Top concerns <span class="ct">${cons.length}</span></h2><ol class="rv-find rv-cons">${cons.map(c=>'<li>'+esc(c)+'</li>').join('')}</ol></div>`;
+    if(acts.length)h+=`<div class="rv-sec"><h2>🎯 Action items <span class="ct">${acts.length}</span></h2>${acts.map((a,i)=>{const p=a.priority||('P'+(i+1));const cls=/1/.test(p)?'p1':/2/.test(p)?'p2':'';return `<div class="rv-act"><div class="pr"><span class="prn ${cls}">${esc(p)}</span><span class="wh">${esc(a.timeframe||'')}</span></div><div><div class="at">${esc(a.title||'')}</div><div class="ab">${esc(a.body||'')}</div></div></div>`;}).join('')}</div>`;
+    // full detailed report — always shown so opening a week displays the WHOLE report
+    if(r.report_md){
+      let md=r.report_md;const cut=md.search(/\n##\s+Search/);
+      if((wins.length||cons.length||acts.length)&&cut>0)md=md.slice(cut+1); // analyst narrative replaced the headline + top-actions intro
+      h+=`<div class="rv-sec"><h2>📋 Full report</h2><div class="rv-md">${mdRender(md)}</div></div>`;
+    }else if(!wins.length&&!cons.length&&!acts.length){
+      h+='<div class="rv-empty"><div class="ei">📝</div><div class="et">No analyst narrative yet</div><div>This report runs through the Analyst agent on the next run.</div></div>';
+    }
+    el.innerHTML=h;return;
+  }
+  if(t==='intel'){
+    const r=(D.intel||[]).find(x=>x.run_date===RV.week)||(D.intel||[]).find(x=>x.product_type==='stabletrack')||(D.intel||[])[0];
+    if(!r){el.innerHTML='<div class="rv-empty"><div class="ei">🔭</div><div class="et">No live market-intel report</div></div>';return;}
+    const themes=asArr(r.industry_themes),lang=asArr(r.customer_language),events=asArr(r.upcoming_events),topics=asArr(r.content_topics),comps=asArr(r.competitor_moves);
+    const liArr=(arr,fn)=>'<ul class="rv-md" style="margin:0;padding-left:20px">'+arr.map(x=>'<li style="margin-bottom:7px">'+fn(x)+'</li>').join('')+'</ul>';
+    const sec=(title,arr,fn)=>`<div class="rv-sec"><h2>${title} <span class="ct">${arr.length}</span></h2>${liArr(arr,fn)}</div>`;
+    let h=`<div class="rv-head"><h1>StableTrack — Market Intelligence</h1><div><span class="rv-st live">${esc(r.status||'Live')}</span><div class="rv-sub">${esc(r.run_date||'')}</div></div></div>`;
+    if(r.headline)h+=`<div class="rv-callout"><span class="cl">If we do ONE thing this fortnight</span>${esc(r.headline)}</div>`;
+    const mi=[r.signals_generated!=null?{label:'Signals',value:r.signals_generated}:null,r.sources_scanned!=null?{label:'Sources scanned',value:r.sources_scanned}:null,{label:'Competitor moves',value:comps.length},{label:'Content ideas',value:topics.length}].filter(Boolean);
+    if(mi.length)h+=`<div class="rv-metrics">${mi.map(metricTile).join('')}</div>`;
+    if(r.top_3_actions)h+=`<div class="rv-sec"><h2>🎯 Top actions</h2><div class="rv-md">${mdRender(r.top_3_actions)}</div></div>`;
+    if(comps.length)h+=sec('🥊 Top competitor moves',comps,c=>`<b>${esc(c.competitor||'')}</b>${c.threat_level?' <span class="tag">'+esc(c.threat_level)+' threat</span>':''}${c.move?'<br>'+esc(c.move):(c.sentiment?' — '+esc(c.sentiment):'')}${Array.isArray(c.complaints)&&c.complaints.length?'<br><span class="mut">'+esc(c.complaints[0])+'</span>':''}${c.source_url?' · <a href="'+esc(c.source_url)+'" target="_blank">source</a>':''}`);
+    if(themes.length)h+=sec('🏭 Industry themes',themes,x=>`${x.trend?'<span class="tag">'+esc(x.trend)+'</span> ':''}${esc(x.theme||x.summary||'')}`);
+    if(topics.length)h+=sec('✍️ Suggested content topics',topics,x=>`<b>${esc(x.topic||x.title||'')}</b>${x.pillar?' <span class="tag">'+esc(x.pillar)+'</span>':''}${x.rationale?'<br><span class="mut">'+esc(x.rationale)+'</span>':''}`);
+    if(lang.length)h+=sec('💬 Customer language',lang,x=>'“'+esc(x.phrase||x.quote||'')+'”');
+    if(events.length)h+=sec('📅 Upcoming events',events,x=>`<b>${esc(x.event||'')}</b>${x.date?' — '+esc(x.date):''}${x.action_needed?'<br><span class="mut">'+esc(x.action_needed)+'</span>':''}`);
+    el.innerHTML=h;return;
+  }
+  const b=(D.brief||[])[0];
+  if(!b){el.innerHTML='<div class="rv-empty"><div class="ei">🧠</div><div class="et">No active brief this week</div><div style="max-width:380px">The latest strategy draft is awaiting Slack approval. Once approved it appears here as a readable brief.</div></div>';return;}
+  const slate=D.slate||[],blogs=slate.filter(s=>s.type==='blog'),socials=slate.filter(s=>s.type==='social');
+  const liArr=(arr,fn)=>'<ul class="rv-md" style="margin:0;padding-left:20px">'+arr.map(x=>'<li style="margin-bottom:9px">'+fn(x)+'</li>').join('')+'</ul>';
+  const dl=(label,val)=>val?`<div style="margin:7px 0"><span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);display:block">${label}</span>${esc(val)}</div>`:'';
+  let h=`<div class="rv-head"><h1>StableTrack — Strategy Brief</h1><div><span class="rv-st live">${esc(b.status||'Active')}</span><div class="rv-sub">${esc(b.period_start||'')} → ${esc(b.period_end||'')}</div></div></div>`;
+  if(b.headline_thesis||b.focus)h+=`<div class="rv-callout"><span class="cl">Headline thesis</span>${esc(b.headline_thesis||b.focus)}</div>`;
+  h+=`<div class="rv-metrics">${[{label:'Blog topics',value:b.blog_topics!=null?b.blog_topics:blogs.length},{label:'Social posts',value:b.social_posts!=null?b.social_posts:socials.length}].map(metricTile).join('')}</div>`;
+  if(b.summary)h+=`<div class="rv-sec"><h2>Summary</h2><div class="rv-md"><p>${esc(b.summary)}</p></div></div>`;
+  const pm=asArr(b.pillar_mix);
+  let brief=dl('Focus',b.focus)+dl('Positioning',b.positioning)+dl('Audience',b.audience_focus)+dl('Tone',b.tone_hint)+dl('Not writing about',b.not_writing_about)+dl('Inputs read',b.inputs_read);
+  if(pm.length)brief+=`<div style="margin:7px 0"><span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);display:block">Pillar mix</span>${pm.map(x=>`<span class="pill">${esc(x.pillar||'')} ×${esc(x.target_count!=null?x.target_count:'')}</span>`).join('')}</div>`;
+  if(brief.trim())h+=`<div class="rv-sec"><h2>📋 Brief</h2>${brief}</div>`;
+  if(blogs.length)h+=`<div class="rv-sec"><h2>✍️ Blog topics <span class="ct">${blogs.length}</span></h2>${liArr(blogs,t=>`<b>${esc(t.item||'')}</b>${t.pillar?' <span class="tag">'+esc(t.pillar)+'</span>':''}${t.urgency?' <span class="tag">'+esc(t.urgency)+'</span>':''}${t.keyword?'<br><span class="mut">keyword:</span> '+esc(t.keyword):''}${t.angle?'<br>'+esc(t.angle):''}${t.rationale?'<br><span class="mut">'+esc(t.rationale)+'</span>':''}`)}</div>`;
+  if(socials.length)h+=`<div class="rv-sec"><h2>📣 Social posts <span class="ct">${socials.length}</span></h2>${liArr(socials,p=>`<b>${esc(p.post_concept||p.hook||'')}</b>${p.channel?' <span class="tag">'+esc(p.channel)+'</span>':''}${p.pillar?' <span class="tag">'+esc(p.pillar)+'</span>':''}${p.hook&&p.post_concept?'<br>'+esc(p.hook):''}${p.cta?'<br><span class="mut">CTA:</span> '+esc(p.cta):''}${p.anchor?'<br><span class="mut">anchor:</span> '+esc(p.anchor):''}`)}</div>`;
+  el.innerHTML=h;
+}
+
+function drawCharts(){
+  Object.values(charts).forEach(c=>c&&c.destroy&&c.destroy());charts={};
+  // social trend: followers per channel over weeks
+  const tr=D.trend||[]; const chans=[...new Set(tr.map(r=>r.channel))]; const weeks=[...new Set(tr.map(r=>r.week))].sort();
+  const palette=['#C6761E','#5D4037','#E9A319','#3E8E5A','#8B4513'];
+  const TXT='#9a8979', GRID='rgba(62,39,35,.07)';
+  charts.social=new Chart(document.getElementById('socialChart'),{type:'line',data:{labels:weeks,datasets:chans.map((c,i)=>({label:c,data:weeks.map(w=>{const m=tr.find(r=>r.channel===c&&r.week===w);return m?m.total_engagements:null;}),borderColor:palette[i%5],backgroundColor:palette[i%5],tension:.3,spanGaps:true}))},options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:true,text:'Engagement by channel (weekly)',color:'#5D4037',font:{weight:'600'}},legend:{labels:{color:TXT}}},scales:{x:{ticks:{color:TXT},grid:{color:GRID}},y:{ticks:{color:TXT},grid:{color:GRID}}}}});
+  const seo=(D.seo||[]).filter(r=>r.wow_change_pct!=null).slice(0,10);
+  charts.seo=new Chart(document.getElementById('seoChart'),{type:'bar',data:{labels:seo.map(r=>r.metric),datasets:[{label:'WoW %',data:seo.map(r=>r.wow_change_pct),backgroundColor:seo.map(r=>r.wow_change_pct>=0?'#3E8E5A':'#C0392B')}]},options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:true,text:'SEO/traffic WoW %',color:'#5D4037',font:{weight:'600'}},legend:{display:false}},scales:{x:{ticks:{color:TXT},grid:{color:GRID}},y:{ticks:{color:TXT},grid:{color:GRID}}}}});
+}
+
+async function loadAll(){
+  document.getElementById('ts').textContent='loading…';
+  const pairs=[['weekly','weekly_reports','order=week_start.desc'],['actions','pipeline_action_items','limit=200'],['social','performance_social_scorecard','order=total_engagements.desc'],['trend','performance_social_trend','order=channel,week'],['seo','performance_metrics_latest','order=source,metric'],['competitors','performance_competitors_latest','order=top10.desc'],['movers','performance_keywords_movers',''],['brief','strategy_current_brief',''],['pstatus','strategy_pipeline_status','order=stage'],['slate','strategy_content_slate','order=type'],['intel','marketing_intel_all','order=run_date.desc'],['blogdrafts','blog_drafts_open','order=created_at.desc']];
+  // live GTM (Apollo + HubSpot) runs concurrently with the Supabase reads — it's slower, so render it when ready
+  D.gtm={loading:true};
+  const gtmP=fetch('/api/gtm-weekly').then(r=>r.ok?r.json():{error:'HTTP '+r.status}).catch(e=>({error:e.message}));
+  await Promise.all(pairs.map(async([k,v,p])=>{try{D[k]=await q(v,p);}catch(e){D[k]=[];}}));
+  renderWeeklyGtm();renderReports();renderActions();renderSocial();renderSeo();renderStrategy();renderIntel();renderBlogposts();try{drawCharts();}catch(e){}
+  gtmP.then(g=>{D.gtm=g;renderWeeklyGtm();});
+  setFreshness();
+  document.getElementById('ts').textContent='loaded '+new Date().toLocaleString();
+}
+
+// ---- data-freshness badges (latest date present in each view) ----
+const fmtD=s=>{if(!s)return '';const d=new Date(s);return isNaN(d)?String(s):d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});};
+const maxField=(rows,f)=>{const v=(rows||[]).map(r=>r&&r[f]).filter(Boolean).sort();return v.length?v[v.length-1]:null;};
+const setAsof=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val?('data as of '+fmtD(val)):'';};
+function setFreshness(){
+  const b=(D.brief||[])[0]||{};
+  setAsof('asof-actions',maxField(D.actions,'created_at'));
+  setAsof('asof-social',maxField(D.social,'week'));
+  setAsof('asof-seo',maxField(D.seo,'week'));
+  setAsof('asof-strategy',b.period_end||b.period_start);
+  setAsof('asof-blogposts',maxField(D.blogdrafts,'created_at'));
+  setAsof('asof-intel',((D.intel||[])[0]||{}).run_date||((D.intel||[])[0]||{}).as_of);
+}
+
+// ---- AI chatbot (floating) ----
+function toggleChat(){const w=document.getElementById('chatwidget'),f=document.getElementById('chatFab');const open=w.classList.toggle('open');f.style.display=open?'none':'flex';if(open)setTimeout(()=>document.getElementById('chatIn').focus(),50);}
+const hist=[];
+async function ask(qText){
+  const inp=document.getElementById('chatIn'); const text=(qText||inp.value||'').trim(); if(!text)return;
+  inp.value='';const log=document.getElementById('chatlog');
+  log.innerHTML+=`<div class="msg u">${esc(text)}</div>`;
+  const wait=document.createElement('div');wait.className='msg a';wait.textContent='…';log.appendChild(wait);log.scrollTop=log.scrollHeight;
+  document.getElementById('chatBtn').disabled=true;
+  try{
+    const r=await fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({question:text,history:hist})});
+    const j=await r.json();wait.textContent=j.answer||'(no answer)';
+    hist.push({role:'user',content:text},{role:'assistant',content:j.answer||''});
+  }catch(e){wait.className='msg a err';wait.textContent='Error: '+e.message;}
+  document.getElementById('chatBtn').disabled=false;log.scrollTop=log.scrollHeight;
+}
+loadAll();
+</script>
+</body>
+</html>

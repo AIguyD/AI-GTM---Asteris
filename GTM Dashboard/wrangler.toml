@@ -1,0 +1,14 @@
+name = "content-dashboard"
+main = "src/index.js"
+compatibility_date = "2026-05-26"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+# Run the Worker on every request (incl. asset paths) so the access gate + CSP apply
+# instead of Cloudflare serving index.html directly from the asset layer.
+run_worker_first = true
+
+[vars]
+SUPABASE_URL = "https://braxlluhffpmdvtxstjx.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyYXhsbHVoZmZwbWR2dHhzdGp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNjEzNDksImV4cCI6MjA5NTkzNzM0OX0.hXGJee6uY9a2bgELfga9FSCK9b5wsQpZ8cXHHltobhI"

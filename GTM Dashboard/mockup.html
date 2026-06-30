@@ -1,0 +1,337 @@
+<title>StableTrack — Weekly Reports (mockup)</title>
+<style>
+  :root{
+    --bg:#FDFBF7; --card:#ffffff; --line:#e8ddd0; --ink:#3E2723; --ink2:#5D4037;
+    --mut:#9a8979; --accent:#C6761E; --accent-d:#5D4037; --gold:#E9A319;
+    --good:#3E8E5A; --hi:#C0392B; --med:#C6761E;
+    --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  a{color:var(--accent);text-decoration:none;} a:hover{text-decoration:underline;}
+
+  header{display:flex;align-items:center;gap:12px;padding:13px 22px;
+    background:var(--card);border-bottom:2px solid var(--accent);}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand .horse{height:34px;width:34px;object-fit:contain;display:block;}
+  .brand .mark{font-family:var(--serif);font-weight:700;font-size:21px;letter-spacing:-.01em;}
+  .brand .sub{font-size:12px;color:var(--mut);border-left:1px solid var(--line);
+    padding-left:10px;text-transform:uppercase;letter-spacing:.08em;}
+  .hspace{flex:1;}
+  .stamp{font-size:12px;color:var(--mut);}
+  .hlink{font-size:13px;color:var(--ink2);margin-left:14px;cursor:pointer;}
+  .hlink:hover{color:var(--accent);}
+
+  /* tabs centered */
+  .tabwrap{display:flex;flex-direction:column;align-items:center;gap:7px;padding:16px 20px 4px;}
+  .tabs{display:flex;justify-content:center;gap:4px;background:#f3e9dc;border:1px solid var(--line);
+    border-radius:13px;padding:4px;flex-wrap:wrap;width:fit-content;max-width:100%;}
+  .tab{font-size:13px;padding:7px 13px;border-radius:9px;cursor:pointer;color:var(--ink2);
+    border:1px solid transparent;white-space:nowrap;}
+  .tab:hover{color:var(--ink);}
+  .tab.on{background:var(--card);border-color:var(--line);color:var(--ink);font-weight:600;
+    box-shadow:0 1px 2px rgba(62,39,35,.06);}
+  .tab.primary.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .tabhint{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;}
+
+  main{max-width:1180px;margin:0 auto;padding:14px 20px 80px;}
+
+  .reportview{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:18px;align-items:start;}
+  @media(max-width:820px){.reportview{grid-template-columns:1fr;}}
+  .rail{display:flex;flex-direction:column;gap:14px;}
+  .railsec{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.09em;margin:2px 2px 6px;}
+  select.week{font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--card);
+    border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%;cursor:pointer;}
+  select.week:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(198,118,30,.12);}
+
+  .rcard{display:flex;flex-direction:column;gap:5px;background:var(--card);border:1px solid var(--line);
+    border-left:3px solid var(--line);border-radius:11px;padding:12px 13px;cursor:pointer;
+    transition:border-color .12s,box-shadow .12s;}
+  .rcard:hover{box-shadow:0 2px 8px rgba(62,39,35,.07);}
+  .rcard.on{border-color:var(--accent);border-left-color:var(--accent);box-shadow:0 2px 10px rgba(198,118,30,.13);}
+  .rcard .rtop{display:flex;align-items:center;gap:8px;}
+  .rcard .ricon{font-size:16px;} .rcard .rname{font-weight:600;font-size:14px;}
+  .rcard .rprev{font-size:12px;color:var(--mut);line-height:1.4;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .rcard .rmeta{font-size:11px;color:var(--mut);margin-top:2px;}
+
+  .pill{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 7px;border-radius:20px;border:1px solid transparent;}
+  .pill.live{background:#e7f1ea;color:var(--good);border-color:#bfdcca;}
+  .pill.draft{background:#fbf0dd;color:#9a6a12;border-color:#e6d3a8;}
+  .pill.empty{background:#f1ece6;color:var(--mut);border-color:var(--line);}
+
+  .doc{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:28px 32px;box-shadow:0 1px 3px rgba(62,39,35,.05);min-height:420px;}
+  @media(max-width:560px){.doc{padding:20px 16px;}}
+  .dochead{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;
+    padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:18px;}
+  .dochead h1{font-family:var(--serif);font-size:25px;font-weight:700;margin:0;letter-spacing:-.01em;
+    flex:1;min-width:240px;line-height:1.2;}
+  .docsub{font-size:12.5px;color:var(--mut);margin-top:5px;}
+
+  .callout{background:linear-gradient(180deg,#fdf6ea,#fbf0dd);border:1px solid #efdcb6;border-radius:11px;
+    padding:15px 17px;font-family:var(--serif);font-size:16.5px;line-height:1.5;margin-bottom:20px;}
+  .callout .clab{display:block;font-family:var(--sans);font-size:10.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.09em;color:var(--accent);margin-bottom:6px;}
+
+  /* metric strip */
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;margin-bottom:22px;}
+  .metric{background:#fdfaf5;border:1px solid var(--line);border-radius:11px;padding:12px 13px;}
+  .metric .ml{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;}
+  .metric .mv{font-family:var(--serif);font-size:23px;font-weight:700;margin-top:3px;line-height:1;}
+  .metric .md{font-size:12px;font-weight:600;margin-top:5px;}
+  .metric .md.up{color:var(--good);} .metric .md.down{color:var(--hi);} .metric .md.flat{color:var(--mut);}
+  .metric .ms{font-size:11px;color:var(--mut);margin-top:4px;}
+  .metric.todo .mv{color:var(--mut);font-size:18px;} .metric.todo{border-style:dashed;}
+
+  .sec{margin-bottom:22px;}
+  .sec h2{font-family:var(--serif);font-size:16px;font-weight:700;margin:0 0 10px;
+    display:flex;align-items:center;gap:8px;}
+  .sec h2 .scount{font-family:var(--sans);font-size:11px;font-weight:700;color:var(--mut);
+    background:#f3ece4;border-radius:20px;padding:1px 8px;}
+  ol.findings{list-style:none;margin:0;padding:0;counter-reset:f;}
+  ol.findings li{counter-increment:f;position:relative;padding:9px 0 9px 30px;
+    border-bottom:1px solid var(--line);color:var(--ink2);font-size:13.5px;line-height:1.5;}
+  ol.findings li:last-child{border-bottom:none;}
+  ol.findings li::before{content:counter(f);position:absolute;left:0;top:9px;width:21px;height:21px;
+    border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+  ol.wins li::before{background:#e7f1ea;color:var(--good);}
+  ol.concerns li::before{background:#fbece9;color:var(--hi);}
+  .findings b{color:var(--ink);}
+
+  .act{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);}
+  .act:last-child{border-bottom:none;}
+  .act .pr{flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:54px;}
+  .act .prn{font-size:10px;font-weight:800;letter-spacing:.05em;color:#fff;background:var(--accent);
+    border-radius:6px;padding:3px 7px;}
+  .act .prn.p1{background:var(--hi);} .act .prn.p2{background:#D9822B;}
+  .act .when{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;}
+  .act .atxt .at{font-weight:700;color:var(--ink);font-size:13.5px;}
+  .act .atxt .ab{color:var(--ink2);font-size:13px;margin-top:2px;line-height:1.5;}
+
+  .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    gap:8px;padding:60px 24px;color:var(--mut);}
+  .empty .eicon{font-size:32px;opacity:.6;} .empty .etitle{font-family:var(--serif);font-size:18px;color:var(--ink2);}
+
+  .dataph{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:34px;text-align:center;color:var(--mut);}
+  .dataph .pt{font-family:var(--serif);font-size:18px;color:var(--ink2);margin-bottom:6px;}
+  .dataph code{background:#f3ece4;padding:1px 6px;border-radius:5px;}
+
+  .hide{display:none;} :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .mockbadge{position:fixed;bottom:14px;left:14px;background:var(--ink);color:#fbf0dd;font-size:11px;
+    padding:6px 11px;border-radius:20px;letter-spacing:.04em;opacity:.92;z-index:30;}
+
+  /* AI chat */
+  #chatFab{position:fixed;right:20px;bottom:20px;z-index:50;display:flex;align-items:center;gap:8px;
+    padding:11px 17px;border:0;border-radius:30px;font-size:15px;color:#fff;cursor:pointer;
+    box-shadow:0 6px 20px rgba(62,39,35,.28);background:linear-gradient(135deg,var(--accent),var(--accent-d));}
+  #chatFab span{font-size:14px;font-weight:600;} #chatFab:hover{filter:brightness(1.05);}
+  #chatwidget{position:fixed;right:20px;bottom:20px;z-index:60;width:370px;max-width:calc(100vw - 32px);
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 14px 44px rgba(62,39,35,.32);padding:13px;display:none;flex-direction:column;}
+  #chatwidget.open{display:flex;}
+  .cw-head{display:flex;align-items:center;gap:9px;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);}
+  .cw-mark{width:32px;height:32px;border-radius:8px;object-fit:contain;background:#f6ecdf;padding:3px;flex:0 0 auto;}
+  .cw-head b{font-family:var(--serif);font-size:15px;} .cw-head .csub{font-size:11px;color:var(--mut);}
+  .cw-x{cursor:pointer;color:var(--mut);font-size:16px;padding:2px 6px;border-radius:6px;} .cw-x:hover{background:#f6ecdf;color:var(--ink);}
+  #chatlog{height:300px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;padding:11px;background:#fdf8f1;margin-bottom:8px;}
+  .msg{margin:6px 0;padding:9px 12px;border-radius:10px;max-width:88%;white-space:pre-wrap;font-size:13px;}
+  .msg.u{background:var(--accent);color:#fff;margin-left:auto;} .msg.a{background:#fff;border:1px solid var(--line);}
+  .chatrow{display:flex;gap:8px;} .chatrow .chatin{flex:1;}
+  .chips{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-top:8px;}
+  .chip{font-size:12px;background:#f6ecdf;border:1px solid #e8ddd0;border-radius:14px;padding:5px 12px;cursor:pointer;color:var(--ink2);font-weight:500;text-align:left;}
+  .chip:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .chatin{background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 10px;font-size:13px;font-family:var(--sans);}
+  .chatin:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(198,118,30,.12);}
+  .chatsend{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:8px 15px;font-weight:600;cursor:pointer;}
+</style>
+
+<header>
+  <div class="brand">
+    <img class="horse" src="public/icon.png" alt="StableTrack">
+    <span class="mark">StableTrack</span>
+    <span class="sub">Content Pipeline</span>
+  </div>
+  <div class="hspace"></div>
+  <span class="stamp">loaded 4:30 PM</span>
+  <span class="hlink">&#8635; Refresh</span>
+  <span class="hlink">&#9099; Log out</span>
+</header>
+
+<div class="tabwrap">
+  <div class="tabs">
+    <div class="tab primary on" data-tab="reports">&#128196; Weekly Reports</div>
+    <div class="tab" data-tab="actions">&#128680; Action Items</div>
+    <div class="tab" data-tab="social">&#128226; Social</div>
+    <div class="tab" data-tab="seo">&#128200; SEO</div>
+    <div class="tab" data-tab="strategy">&#129504; Strategy</div>
+    <div class="tab" data-tab="intel">&#128301; Market Intel</div>
+  </div>
+  <span class="tabhint">read a report &nbsp;·&nbsp; or explore the data &#8594;</span>
+</div>
+
+<main>
+  <section class="panel" data-panel="reports">
+    <div class="reportview">
+      <aside class="rail">
+        <div>
+          <div class="railsec">Week</div>
+          <select class="week" id="weekSel">
+            <option value="2026-05-18">Week of May 11–18, 2026 &nbsp;·&nbsp; latest</option>
+            <option value="2026-05-11">Week of May 4–11, 2026</option>
+          </select>
+        </div>
+        <div>
+          <div class="railsec">Reports this week</div>
+          <div id="railCards"></div>
+        </div>
+      </aside>
+      <article class="doc" id="docPane"></article>
+    </div>
+  </section>
+
+  <section class="panel hide" data-panel="actions"><div class="dataph"><div class="pt">&#128680; Action Items</div>The sortable, filterable signals table &mdash; unchanged drill-down.<br><br>Source: <code>reporting.pipeline_action_items</code></div></section>
+  <section class="panel hide" data-panel="social"><div class="dataph"><div class="pt">&#128226; Social</div>Engagement chart + per-channel scorecard &mdash; unchanged.<br><br>Source: <code>performance_social_scorecard</code></div></section>
+  <section class="panel hide" data-panel="seo"><div class="dataph"><div class="pt">&#128200; SEO</div>WoW bar chart + metrics table &mdash; unchanged.<br><br>Source: <code>performance_metrics_latest</code></div></section>
+  <section class="panel hide" data-panel="strategy"><div class="dataph"><div class="pt">&#129504; Strategy</div>Current brief, pipeline status, content slate &mdash; unchanged.</div></section>
+  <section class="panel hide" data-panel="intel"><div class="dataph"><div class="pt">&#128301; Market Intel</div>Raw stacked intel blocks &mdash; unchanged. (Readable version now in Weekly Reports.)</div></section>
+</main>
+
+<div class="mockbadge">MOCKUP &middot; real data (your May 11–18 SEO report)</div>
+
+<button id="chatFab" onclick="toggleChat()" title="Ask AI about your data">&#128172;<span>Ask&nbsp;AI</span></button>
+<div id="chatwidget">
+  <div class="cw-head"><img class="cw-mark" src="public/icon.png" alt="StableTrack">
+    <div><b>StableTrack AI</b><div class="csub">Ask about your pipeline data</div></div>
+    <span style="flex:1"></span><span class="cw-x" onclick="toggleChat()">&#10005;</span></div>
+  <div id="chatlog">
+    <div class="msg a">Hi! Ask me anything about your pipeline data &mdash; the weekly reports, signals, social, SEO.</div>
+    <div class="chips">
+      <span class="chip" onclick="askMock(this.textContent)">What were the top wins this week?</span>
+      <span class="chip" onclick="askMock(this.textContent)">Which keyword dropped and why?</span>
+      <span class="chip" onclick="askMock(this.textContent)">Summarize the action items</span>
+    </div>
+  </div>
+  <div class="chatrow"><input type="text" class="chatin" id="chatIn" placeholder="Ask about the data&hellip;" onkeydown="if(event.key==='Enter')askMock()"><button class="chatsend" onclick="askMock()">Send</button></div>
+</div>
+
+<script>
+/* ---- AI chat (mock) ---- */
+function toggleChat(){const w=document.getElementById('chatwidget'),f=document.getElementById('chatFab');
+  const open=w.classList.toggle('open');f.style.display=open?'none':'flex';
+  if(open)setTimeout(()=>document.getElementById('chatIn').focus(),50);}
+function askMock(t){const inp=document.getElementById('chatIn');const text=(t||inp.value||'').trim();if(!text)return;
+  inp.value='';const log=document.getElementById('chatlog');
+  log.insertAdjacentHTML('beforeend','<div class="msg u">'+text.replace(/</g,'&lt;')+'</div>');
+  log.insertAdjacentHTML('beforeend','<div class="msg a">In the live dashboard I answer from your real Supabase data. (Mockup &mdash; placeholder reply.)</div>');
+  log.scrollTop=log.scrollHeight;}
+
+/* ---- real report content (your Notion SEO report, May 11–18) ---- */
+const PERF = {
+  title:'StableTrack — Weekly SEO Performance', icon:'📈', name:'Performance',
+  status:'live', statusLabel:'Published', meta:'SEMrush Position Tracking · GA4 · GSC',
+  preview:'Strongest week of the year — visibility +4.65 to 61.72%, overtaking Cassadol.',
+  headlineLabel:'The week in one line',
+  headline:'Strongest week of the year. Visibility up 4.65 points to 61.72% — overtaking Cassadol, who fell 8.52 points. 9 keywords gained 5+ positions, including “best equine practice management software” (26→8) and “equine medical records software” (9→1).',
+  metrics:[
+    {l:'Visibility',v:'61.72%',d:'+4.65 pts',dir:'up'},
+    {l:'Avg position',v:'11.47',d:'+0.04 WoW',dir:'flat'},
+    {l:'AI Overview',v:'26 / 53',s:'49% of tracked'},
+    {l:'Clicks',v:'—',s:'WoW',todo:true},
+    {l:'CTR',v:'—',todo:true},
+    {l:'Impressions',v:'—',s:'WoW',todo:true},
+    {l:'Brand clicks',v:'—',todo:true},
+  ],
+  wins:[
+    'StableTrack visibility <b>57.07% → 61.72% (+4.65 pts)</b>. Now meaningfully ahead of the competitor set.',
+    'Cassadol visibility dropped <b>8.52 pts (47.60% → 40.24%)</b> — largest single-week decline in the tracked set. Combined with our gain, we’ve opened a <b>21-point lead</b>.',
+    '<b>9 keywords gained 5+ positions, only 3 dropped.</b> Big wins: “best equine practice management software” 26→8 (−18); “veterinary records management horses” 22→6 (−16); “equine vet management system” 10→1 (−9); “equine medical records software” 9→1 (−8); “equine veterinary software” 18→11 (−7).',
+    '<b>/equine-practice-management-software</b> now ranks for <b>38 keywords</b> (up from 13 last week — +25 new tracked rankings on one page). The prerender + sitemap fixes from May 15 are starting to land.',
+    'GA4 shows <b>3 demo_booked events</b> in May 1–18, plus 4 form_starts and 3 form_submits — real conversion signal from a 195-active-user base.',
+    'AI Overview now cites StableTrack on <b>26 of 53 tracked keywords (49%)</b>. Generative search is surfacing the brand for equine-PMS queries.',
+  ],
+  concerns:[
+    'Brand search dropped: <b>“stabletrack” pos 11 → 19 (−8)</b>. Worth checking what’s outranking us — possible search competitor moved up or a SERP feature reshuffled.',
+    '<b>“equine scheduling software” fell pos 1 → 9 (−8).</b> The ranking page (/equine-scheduling-and-billing) appears to have lost a featured position — worth a page-level audit.',
+    '<b>“ai veterinary practice management” dropped OUT of the top 100</b> (was pos 63); “equine radiology workflow” also dropped out (was pos 19). Both are non-brand discovery keywords we want to hold.',
+    'Asteris.com appears in this competitive set at <b>visibility 34.93% (−2.66)</b>. Separate market, but worth noting if the slip continues.',
+    'Only <b>3 key events (demo bookings) across 195 active users = 1.5% conversion</b>. Working, but at small scale — worth A/B testing CTAs on top-traffic pages.',
+    '/equine-practice-management-software avg position widened to <b>43.0 (from 9.5)</b> — because 25 new keywords joined the pool at lower positions, NOT a real drop. Flag so summary views don’t read it as a decline.',
+  ],
+  actions:[
+    {p:'P1',cls:'p1',when:'today',t:'Investigate the brand drop',b:'Find why “stabletrack” branded search fell 11→19. Check Search Console manually. Possible causes: competitor brand-bidding, lost sitelinks, or the recent prerender deploy affecting the homepage ranking.'},
+    {p:'P2',cls:'p2',when:'this week',t:'Fix the scheduling page',b:'/equine-scheduling-and-billing dropped 1→9 on “equine scheduling software.” Run a page audit: last update, recent content changes, prerender serving correctly. This was our strongest single-page win — defend it.'},
+    {p:'P3',cls:'p2',when:'this week',t:'Request indexing on the AI blog',b:'“ai veterinary practice management” dropped out of the top 100. Push the ready AI posts (AI Scribe vs Template, AI in Equine Practice) to indexing via the GSC URL Inspector.'},
+    {p:'P4',cls:'',when:'next 2 weeks',t:'Protect the win',b:'The 9 big-gain keywords need internal-link reinforcement. Add contextual links from /best-equine-practice-management-software (now pos 8) and /equine-medical-records-software (now pos 1) to related pages so they hold position.'},
+    {p:'P5',cls:'',when:'next 2 weeks',t:'Monitor AI Overview citations',b:'AI Overview cites StableTrack on 26/53 tracked terms. Stand up AEO monitoring; scan what content the AI pulls and whether messaging is on-brand.'},
+  ],
+};
+const INTEL = {
+  title:'StableTrack — Market Intelligence', icon:'🔭', name:'Market Intel',
+  status:'live', statusLabel:'Live', meta:'43 signals · 26 sources',
+  preview:'Publish a DEA compliance awareness post now — rising vet audit frequency.',
+  headlineLabel:'If we do ONE thing this fortnight',
+  headline:'Publish a DEA compliance awareness post now — citing dvm360’s Jan–Feb 2026 data on rising veterinary audit frequency — positioning StableTrack as the equine PMS building native DEA Logs with One-Click Audit.',
+  metrics:[{l:'Signals',v:'43'},{l:'Sources scanned',v:'26'}],
+  wins:null, concerns:null,
+  actions:[
+    {p:'1',cls:'',when:'Competitive Displacement',t:'“ThoroVet Can Schedule Your Barn Call. It Can’t Write Your SOAP Note.”',b:'Write the competitive-displacement piece naming ThoroVet’s gap in clinical note automation.'},
+    {p:'2',cls:'',when:'Pricing & Value',t:'“The Hidden Cost of Cassadol’s Offline Mode: $39/Month for a Feature StableTrack Ships Free.”',b:'Pricing & value angle against Cassadol’s paid offline mode.'},
+    {p:'3',cls:'',when:'deadline Jul 1',t:'72nd Annual AAEP Convention & Trade Show — Las Vegas',b:'Submission window closing — decide on abstract / presence.'},
+  ],
+};
+const STRAT = {
+  title:'StableTrack — Strategy Brief', icon:'🧠', name:'Strategy',
+  status:'empty', statusLabel:'No brief', meta:'awaiting approval',
+  preview:'No active brief — latest draft awaiting Slack approval.',
+  emptyTitle:'No active brief this week',
+  emptyBody:'The latest strategy draft is waiting for Slack approval. Once approved it appears here as a readable brief.',
+};
+const WEEKS = { '2026-05-18':{performance:PERF,intel:INTEL,strategy:STRAT}, '2026-05-11':null };
+const ORDER = ['performance','intel','strategy'];
+const state = {week:'2026-05-18',type:'performance'};
+
+const railCards=document.getElementById('railCards'), docPane=document.getElementById('docPane'), weekSel=document.getElementById('weekSel');
+function fmtWeek(w){return ({'2026-05-18':'May 11–18, 2026','2026-05-11':'May 4–11, 2026'})[w]||w;}
+
+function renderRail(){
+  const wk=WEEKS[state.week]; railCards.innerHTML='';
+  if(!wk){railCards.innerHTML='<div class="rcard" style="cursor:default"><div class="rprev">No reports loaded for this week yet.</div></div>';return;}
+  ORDER.forEach(t=>{const r=wk[t];const card=document.createElement('div');
+    card.className='rcard'+(t===state.type?' on':'');card.tabIndex=0;card.setAttribute('role','button');
+    card.innerHTML='<div class="rtop"><span class="ricon">'+r.icon+'</span><span class="rname">'+r.name+'</span><span style="flex:1"></span><span class="pill '+r.status+'">'+r.statusLabel+'</span></div><div class="rprev">'+r.preview+'</div><div class="rmeta">'+r.meta+'</div>';
+    const pick=()=>{state.type=t;renderRail();renderDoc();};
+    card.addEventListener('click',pick);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick();}});
+    railCards.appendChild(card);});
+}
+function metricHTML(m){
+  let d=''; if(m.d){const dir=m.dir||'flat';d='<div class="md '+dir+'">'+(dir==='up'?'▲ ':dir==='down'?'▼ ':'')+m.d+'</div>';}
+  const s=m.s?'<div class="ms">'+m.s+'</div>':'';
+  return '<div class="metric'+(m.todo?' todo':'')+'"><div class="ml">'+m.l+'</div><div class="mv">'+m.v+'</div>'+d+s+'</div>';
+}
+function findingsHTML(arr,cls){return '<ol class="findings '+cls+'">'+arr.map(x=>'<li>'+x+'</li>').join('')+'</ol>';}
+function actionsHTML(arr){return arr.map(a=>'<div class="act"><div class="pr"><span class="prn '+a.cls+'">'+a.p+'</span><span class="when">'+a.when+'</span></div><div class="atxt"><div class="at">'+a.t+'</div><div class="ab">'+a.b+'</div></div></div>').join('');}
+
+function renderDoc(){
+  const wk=WEEKS[state.week];
+  if(!wk){docPane.innerHTML='<div class="empty"><div class="eicon">📭</div><div class="etitle">No reports for this week</div><div>Pick a week with generated reports.</div></div>';return;}
+  const r=wk[state.type];
+  if(r.status==='empty'){docPane.innerHTML='<div class="empty"><div class="eicon">🧠</div><div class="etitle">'+r.emptyTitle+'</div><div style="max-width:380px">'+r.emptyBody+'</div></div>';return;}
+  let h='<div class="dochead"><h1>'+r.title+'</h1><div><span class="pill '+r.status+'">'+r.statusLabel+'</span><div class="docsub">Week of '+fmtWeek(state.week)+' · '+r.meta+'</div></div></div>';
+  h+='<div class="callout"><span class="clab">'+r.headlineLabel+'</span>'+r.headline+'</div>';
+  if(r.metrics){h+='<div class="metrics">'+r.metrics.map(metricHTML).join('')+'</div>';}
+  if(r.wins){h+='<div class="sec"><h2>✅ Top wins <span class="scount">'+r.wins.length+'</span></h2>'+findingsHTML(r.wins,'wins')+'</div>';}
+  if(r.concerns){h+='<div class="sec"><h2>⚠️ Top concerns <span class="scount">'+r.concerns.length+'</span></h2>'+findingsHTML(r.concerns,'concerns')+'</div>';}
+  if(r.actions){h+='<div class="sec"><h2>🎯 Action items <span class="scount">'+r.actions.length+'</span></h2>'+actionsHTML(r.actions)+'</div>';}
+  docPane.innerHTML=h;
+}
+weekSel.addEventListener('change',e=>{state.week=e.target.value;state.type='performance';renderRail();renderDoc();});
+document.querySelectorAll('.tab').forEach(t=>{t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on','primary'));
+  t.classList.add('on');if(t.dataset.tab==='reports')t.classList.add('primary');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('hide',p.dataset.panel!==t.dataset.tab));});});
+renderRail();renderDoc();
+</script>
