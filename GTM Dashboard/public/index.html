@@ -319,13 +319,13 @@
   </div>
 
   <div class="panel" data-p="blogposts">
-    <div class="phead"><span class="sub" id="bpCount"></span><span style="flex:1"></span><span class="asof" id="asof-blogposts"></span></div>
+    <div class="phead"><span class="sub" id="bpCount"></span><span style="flex:1"></span><span class="asof" id="asof-blogposts"></span><button class="gen-btn" onclick="genContent('blog',this)" style="margin-left:10px">✨ Generate blog posts</button></div>
     <div id="bpTiles" class="rv-metrics" style="margin:2px 0 12px"></div>
     <div id="blogList"></div>
   </div>
 
   <div class="panel" data-p="socialposts">
-    <div class="phead"><span class="sub" id="spCount"></span><span style="flex:1"></span><span class="asof" id="asof-socialposts"></span></div>
+    <div class="phead"><span class="sub" id="spCount"></span><span style="flex:1"></span><span class="asof" id="asof-socialposts"></span><button class="gen-btn" onclick="genContent('social',this)" style="margin-left:10px">✨ Generate social posts</button></div>
     <div id="spTiles" class="rv-metrics" style="margin:2px 0 12px"></div>
     <div id="socialPostList"></div>
   </div>
@@ -1156,8 +1156,8 @@ function strategyDocHtml(){
   let brief=dl('Focus',b.focus)+dl('Positioning',b.positioning)+dl('Audience',b.audience_focus)+dl('Tone',b.tone_hint)+dl('Not writing about',b.not_writing_about)+dl('Inputs read',b.inputs_read);
   if(pm.length)brief+=`<div style="margin:7px 0"><span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);display:block">Pillar mix</span>${pm.map(x=>`<span class="pill">${esc(x.pillar||'')} ×${esc(x.target_count!=null?x.target_count:'')}</span>`).join('')}</div>`;
   if(brief.trim())h+=`<div class="rv-sec"><h2>Brief</h2>${brief}</div>`;
-  if(blogs.length)h+=`<div class="rv-sec"><h2>Blog topics <span class="ct">${blogs.length}</span> <button class="gen-btn" onclick="genContent('blog',this)">✨ Generate blog posts</button></h2>${liArr(blogs,t=>`<b>${esc(t.item||'')}</b>${t.pillar?' <span class="tag">'+esc(t.pillar)+'</span>':''}${t.urgency?' <span class="tag">'+esc(t.urgency)+'</span>':''}${t.keyword?'<br><span class="mut">keyword:</span> '+esc(t.keyword):''}${t.angle?'<br>'+esc(t.angle):''}${t.rationale?'<br><span class="mut">'+esc(t.rationale)+'</span>':''}`)}</div>`;
-  if(socials.length)h+=`<div class="rv-sec"><h2>Social posts <span class="ct">${socials.length}</span> <button class="gen-btn" onclick="genContent('social',this)">✨ Generate social posts</button></h2>${liArr(socials,p=>`<b>${esc(p.post_concept||p.hook||'')}</b>${p.channel?' <span class="tag">'+esc(p.channel)+'</span>':''}${p.pillar?' <span class="tag">'+esc(p.pillar)+'</span>':''}${p.hook&&p.post_concept?'<br>'+esc(p.hook):''}${p.cta?'<br><span class="mut">CTA:</span> '+esc(p.cta):''}${p.anchor?'<br><span class="mut">anchor:</span> '+esc(p.anchor):''}`)}</div>`;
+  if(blogs.length)h+=`<div class="rv-sec"><h2>Blog topics <span class="ct">${blogs.length}</span></h2>${liArr(blogs,t=>`<b>${esc(t.item||'')}</b>${t.pillar?' <span class="tag">'+esc(t.pillar)+'</span>':''}${t.urgency?' <span class="tag">'+esc(t.urgency)+'</span>':''}${t.keyword?'<br><span class="mut">keyword:</span> '+esc(t.keyword):''}${t.angle?'<br>'+esc(t.angle):''}${t.rationale?'<br><span class="mut">'+esc(t.rationale)+'</span>':''}`)}</div>`;
+  if(socials.length)h+=`<div class="rv-sec"><h2>Social posts <span class="ct">${socials.length}</span></h2>${liArr(socials,p=>`<b>${esc(p.post_concept||p.hook||'')}</b>${p.channel?' <span class="tag">'+esc(p.channel)+'</span>':''}${p.pillar?' <span class="tag">'+esc(p.pillar)+'</span>':''}${p.hook&&p.post_concept?'<br>'+esc(p.hook):''}${p.cta?'<br><span class="mut">CTA:</span> '+esc(p.cta):''}${p.anchor?'<br><span class="mut">anchor:</span> '+esc(p.anchor):''}`)}</div>`;
   const ps=D.pstatus||[];
   if(ps.length)h+=`<div class="rv-sec"><h2>Pipeline status</h2><table><tr><th>Stage</th><th>Status</th><th class="num">Count</th></tr>${ps.map(x=>`<tr><td>${esc(x.stage)}</td><td><span class="tag">${esc(x.status)}</span></td><td class="num">${x.n}</td></tr>`).join('')}</table></div>`;
   return h;
